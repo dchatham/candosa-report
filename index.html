@@ -165,6 +165,7 @@ const DATA = {
     { "date": "2026-06-30", "label": "Jun 30", "activos": 301, "onboarding": 24, "migrados": 89,  "noMigrados": 212, "trimestre": 4, "pctOnboarded": 67, "migAct": 180, "migImp": 269, "milestone": "Activated: 10 migrated clients; 3rd & 4th Q2 tax presentations complete. 67% of all migrated clients now onboarded (180 of 269)." }
   ]
 };
+const BUILT = "Jun 30, 2026, 2:30 PM CDT";
 
 const fmt = n => n.toLocaleString('en-US');
 const fmtV = (m, n) => fmt(n) + (m.unit || '');
@@ -177,7 +178,7 @@ const first = days[0], last = days[days.length-1];
 const totalBase = last.activos;
 
 document.getElementById('range').textContent = first.label + ' – ' + last.label + ', 2026';
-document.getElementById('updated').textContent = 'Updated ' + DATA.lastUpdated;
+document.getElementById('updated').textContent = 'Updated ' + (BUILT || DATA.lastUpdated);
 
 // KPI cards
 const kpis = document.getElementById('kpis');

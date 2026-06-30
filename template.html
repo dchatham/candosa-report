@@ -121,6 +121,7 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 const DATA = /*__DATA__*/{};
+const BUILT = /*__BUILT__*/null;
 
 const fmt = n => n.toLocaleString('en-US');
 const fmtV = (m, n) => fmt(n) + (m.unit || '');
@@ -133,7 +134,7 @@ const first = days[0], last = days[days.length-1];
 const totalBase = last.activos;
 
 document.getElementById('range').textContent = first.label + ' – ' + last.label + ', 2026';
-document.getElementById('updated').textContent = 'Updated ' + DATA.lastUpdated;
+document.getElementById('updated').textContent = 'Updated ' + (BUILT || DATA.lastUpdated);
 
 // KPI cards
 const kpis = document.getElementById('kpis');
