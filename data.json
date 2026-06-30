@@ -1,0 +1,21 @@
+{
+  "report": "Candosa — Client Summary Daily Trend",
+  "source": "candobro (Slack) — reconstructed from production database and event logs",
+  "lastUpdated": "2026-06-30",
+  "metrics": [
+    { "key": "activos",     "label": "Clientes activos (total)", "color": "#2563eb" },
+    { "key": "onboarding",  "label": "En onboarding",            "color": "#7c3aed" },
+    { "key": "migrados",    "label": "Migrados",                 "color": "#f59e0b" },
+    { "key": "noMigrados",  "label": "No migrados (activos)",    "color": "#10b981" },
+    { "key": "trimestre",   "label": "Trimestre presentado",     "color": "#ef4444" }
+  ],
+  "days": [
+    { "date": "2026-06-24", "label": "Jun 24", "activos": 102, "onboarding": 24, "migrados": 7,   "noMigrados": 95,  "trimestre": 0, "milestone": "Baseline before the major migration." },
+    { "date": "2026-06-25", "label": "Jun 25", "activos": 296, "onboarding": 24, "migrados": 174, "noMigrados": 122, "trimestre": 0, "milestone": "Major Import Day: 194 migrated clients imported; 27 activated immediately." },
+    { "date": "2026-06-26", "label": "Jun 26", "activos": 296, "onboarding": 24, "migrados": 134, "noMigrados": 162, "trimestre": 1, "milestone": "40 migrated clients activated; 1st tax presentation completed." },
+    { "date": "2026-06-27", "label": "Jun 27", "activos": 296, "onboarding": 24, "migrados": 132, "noMigrados": 164, "trimestre": 1, "milestone": "Weekend. 2 more migrated clients activated." },
+    { "date": "2026-06-28", "label": "Jun 28", "activos": 296, "onboarding": 24, "migrados": 119, "noMigrados": 177, "trimestre": 1, "milestone": "Weekend. 13 more migrated clients activated." },
+    { "date": "2026-06-29", "label": "Jun 29", "activos": 299, "onboarding": 24, "migrados": 99,  "noMigrados": 200, "trimestre": 2, "milestone": "20 migrated clients activated; 2nd tax presentation completed." },
+    { "date": "2026-06-30", "label": "Jun 30", "activos": 301, "onboarding": 24, "migrados": 89,  "noMigrados": 212, "trimestre": 4, "milestone": "10 migrated clients activated; 3rd & 4th tax presentations completed today." }
+  ]
+}

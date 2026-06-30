@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candosa — Client Summary Daily Trend</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#121a2e; --panel2:#0f1626; --line:#1e293b;
+    --text:#e6edf7; --muted:#93a1bd; --faint:#5b6b8c;
+    --activos:#3b82f6; --onboarding:#a78bfa; --migrados:#f59e0b;
+    --noMigrados:#34d399; --trimestre:#f87171;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:0 auto;padding:40px 24px 80px}
+  header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  h1{font-size:26px;margin:0;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:14px;margin-top:6px}
+  .range{color:var(--faint);font-size:13px;text-align:right}
+  .range b{color:var(--text)}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+    margin:42px 0 16px;font-weight:600}
+
+  /* KPI cards */
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .kpi .lbl{font-size:12px;color:var(--muted);line-height:1.3;min-height:31px}
+  .kpi .val{font-size:30px;font-weight:700;margin-top:8px;letter-spacing:-.02em}
+  .kpi .delta{font-size:12.5px;margin-top:4px;font-weight:600}
+  .up{color:#34d399}.down{color:#f87171}.flat{color:var(--faint)}
+  .kpi .accent{height:3px;border-radius:3px;margin-bottom:13px;width:30px}
+
+  /* chart grid */
+  .charts{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 8px}
+  .card.full{grid-column:1 / -1}
+  .card h3{margin:0 0 2px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .card .now{color:var(--muted);font-size:12.5px;margin:0 0 6px}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .axis{stroke:var(--line);stroke-width:1}
+  .glabel{fill:var(--faint);font-size:11px}
+  .pt-val{fill:var(--text);font-size:11px;font-weight:600}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left;white-space:normal;color:var(--muted);min-width:240px}
+  thead th{background:var(--panel2);color:var(--muted);font-weight:600;font-size:12px;
+    text-transform:uppercase;letter-spacing:.04em}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.today{background:rgba(59,130,246,.08)}
+  tbody tr.today td:first-child{font-weight:700}
+  .tablewrap{overflow-x:auto}
+
+  ul.insights{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+  ul.insights li{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--activos);
+    border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.5}
+  ul.insights li b{color:#fff}
+  footer{margin-top:48px;color:var(--faint);font-size:12.5px;border-top:1px solid var(--line);
+    padding-top:18px;line-height:1.6}
+  @media(max-width:720px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .charts{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Candosa — Client Summary</h1>
+      <div class="sub">Daily trend across the five dashboard metrics</div>
+    </div>
+    <div class="range">
+      <div><b id="range">—</b></div>
+      <div>Source: candobro · prod DB &amp; event logs</div>
+      <div id="updated">—</div>
+    </div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <h2>7-Day Trend by Metric</h2>
+  <div class="charts" id="charts"></div>
+
+  <h2>Daily Detail &amp; Milestones</h2>
+  <div class="tablewrap"><table id="table"></table></div>
+
+  <h2>Key Insights</h2>
+  <ul class="insights">
+    <li><b>The June 25th surge.</b> The <b>major import</b> on Jun 25 added <b>194 migrated clients</b> in a single batch, lifting the active total from 102 to 296.</li>
+    <li><b>Continuous activation.</b> Since the import, the <em>Migrados</em> bucket has been steadily converted into <em>No migrados (activos)</em> — migrated dropped from 174 → 89 as <b>85 clients</b> were activated this week.</li>
+    <li><b>Onboarding is stable.</b> The onboarding queue held steady at <b>24</b> all week — new signups enter as others complete registration.</li>
+    <li><b>Tax-season progress.</b> <b>4 client workflows</b> reached the finalized tax-presentation stage this week (2 of them today).</li>
+  </ul>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/{};
+
+const fmt = n => n.toLocaleString('en-US');
+const cssVar = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+
+const days = DATA.days;
+const metrics = DATA.metrics;
+const first = days[0], last = days[days.length-1];
+
+document.getElementById('range').textContent = first.label + ' – ' + last.label + ', 2026';
+document.getElementById('updated').textContent = 'Updated ' + DATA.lastUpdated;
+
+// KPI cards
+const kpis = document.getElementById('kpis');
+metrics.forEach(m=>{
+  const now = last[m.key], was = first[m.key], d = now - was;
+  const cls = d>0?'up':d<0?'down':'flat';
+  const sign = d>0?'▲ +':d<0?'▼ ':'■ ';
+  const col = cssVar('--'+m.key);
+  kpis.insertAdjacentHTML('beforeend', `
+    <div class="kpi">
+      <div class="accent" style="background:${col}"></div>
+      <div class="lbl">${m.label}</div>
+      <div class="val">${fmt(now)}</div>
+      <div class="delta ${cls}">${sign}${fmt(Math.abs(d))} <span style="color:var(--faint);font-weight:400">vs ${first.label}</span></div>
+    </div>`);
+});
+
+// Line chart generator (inline SVG)
+function chart(metric){
+  const W=480,H=190, P={l:34,r:18,t:18,b:26};
+  const vals = days.map(d=>d[metric.key]);
+  const max = Math.max(...vals), min = Math.min(...vals);
+  const pad = (max-min)*0.15 || 1;
+  const lo = Math.max(0, min-pad), hi = max+pad;
+  const x = i => P.l + i*(W-P.l-P.r)/(days.length-1);
+  const y = v => P.t + (hi-v)/(hi-lo)*(H-P.t-P.b);
+  const col = cssVar('--'+metric.key);
+
+  const linePts = vals.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+  const area = `${P.l},${H-P.b} ` + linePts + ` ${x(days.length-1)},${H-P.b}`;
+
+  let g='';
+  // baseline axis
+  g += `<line class="axis" x1="${P.l}" y1="${H-P.b}" x2="${W-P.r}" y2="${H-P.b}"/>`;
+  // area + line
+  g += `<polygon points="${area}" fill="${col}" opacity="0.10"/>`;
+  g += `<polyline points="${linePts}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  // points + value labels + x labels
+  vals.forEach((v,i)=>{
+    const isEnd = i===0 || i===vals.length-1;
+    g += `<circle cx="${x(i)}" cy="${y(v)}" r="${isEnd?4:3}" fill="${col}" stroke="var(--panel)" stroke-width="1.5"/>`;
+    if(isEnd) g += `<text class="pt-val" x="${x(i)}" y="${y(v)-9}" text-anchor="${i===0?'start':'end'}">${fmt(v)}</text>`;
+    g += `<text class="glabel" x="${x(i)}" y="${H-8}" text-anchor="middle">${days[i].label.replace('Jun ','')}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${metric.label} trend">${g}</svg>`;
+}
+
+const charts = document.getElementById('charts');
+metrics.forEach((m,idx)=>{
+  const col = cssVar('--'+m.key);
+  const full = idx===0 ? ' full' : '';
+  charts.insertAdjacentHTML('beforeend', `
+    <div class="card${full}">
+      <h3><span class="dot" style="background:${col}"></span>${m.label}</h3>
+      <p class="now">Now <b style="color:var(--text)">${fmt(last[m.key])}</b> &middot; 7-day low ${fmt(Math.min(...days.map(d=>d[m.key])))} &middot; high ${fmt(Math.max(...days.map(d=>d[m.key])))}</p>
+      ${chart(m)}
+    </div>`);
+});
+
+// Table
+const t = document.getElementById('table');
+let head = '<thead><tr><th>Date</th>' + metrics.map(m=>`<th>${m.label}</th>`).join('') + '<th>Key Platform Milestones</th></tr></thead>';
+let body = '<tbody>' + days.map((d,i)=>{
+  const today = i===days.length-1 ? ' class="today"' : '';
+  return `<tr${today}><td>${d.label}</td>` + metrics.map(m=>`<td>${fmt(d[m.key])}</td>`).join('') + `<td>${d.milestone}</td></tr>`;
+}).join('') + '</tbody>';
+t.innerHTML = head + body;
+
+document.getElementById('footer').innerHTML =
+  `Generated from candobro's daily reconstruction of the production database and event logs. ` +
+  `Metrics: Clientes activos (total), En onboarding, Migrados, No migrados (activos), Trimestre presentado. ` +
+  `&copy; Candosa · ${DATA.lastUpdated}`;
+</script>
+</body>
+</html>
