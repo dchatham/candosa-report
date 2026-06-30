@@ -4,10 +4,10 @@
   "lastUpdated": "2026-06-30",
   "metrics": [
     { "key": "activos",      "label": "Active customers (total)",       "sub": "Migrants + non-migrants",          "color": "#11212d", "explain": "Total active customers (migrants plus non-migrants) — it climbed from 29 to 301 in June, driven by the two migration imports." },
-    { "key": "onboarding",   "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#C08B5E", "explain": "Clients still in onboarding (no activity assigned yet) — held flat at 24 all month as completions kept pace with new signups." },
-    { "key": "migrados",     "label": "Migrants",                       "sub": "",                                 "color": "#E07A5F", "explain": "Imported migrant clients not yet activated — spikes on each import (Jun 10 and Jun 25), then drains as the team activates them." },
-    { "key": "noMigrados",   "label": "Non-migrants (active)",          "sub": "",                                 "color": "#6A8E7F", "explain": "Fully set-up, active customers — rises steadily as migrants are converted into active accounts." },
-    { "key": "trimestre",    "label": "Quarter submitted or completed", "sub": "Current quarter",                  "color": "#F03906", "explain": "Clients whose current-quarter tax filing is submitted or completed — began Jun 26 and reached 4 by month-end." },
+    { "key": "onboarding",   "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#C08B5E", "share": true, "explain": "Clients still in onboarding (no activity assigned yet) — held flat at 24 all month as completions kept pace with new signups." },
+    { "key": "migrados",     "label": "Migrants",                       "sub": "",                                 "color": "#E07A5F", "share": true, "explain": "Imported migrant clients not yet activated — spikes on each import (Jun 10 and Jun 25), then drains as the team activates them." },
+    { "key": "noMigrados",   "label": "Non-migrants (active)",          "sub": "",                                 "color": "#6A8E7F", "share": true, "explain": "Fully set-up, active customers — rises steadily as migrants are converted into active accounts." },
+    { "key": "trimestre",    "label": "Quarter submitted or completed", "sub": "Current quarter",                  "color": "#F03906", "share": true, "explain": "Clients whose current-quarter tax filing is submitted or completed — began Jun 26 and reached 4 by month-end." },
     { "key": "pctOnboarded", "label": "Migrant activation rate",        "sub": "Onboarded ÷ total migrated imported", "color": "#7C52FF", "unit": "%", "chartOnly": true, "explain": "Share of all imported migrant clients that have been onboarded/activated — dipped on Jun 25 when the second wave enlarged the denominator, recovering to 67% by month-end." }
   ],
   "days": [

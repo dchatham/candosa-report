@@ -124,6 +124,7 @@ const cssVar = k => getComputedStyle(document.documentElement).getPropertyValue(
 const days = DATA.days;
 const metrics = DATA.metrics;
 const first = days[0], last = days[days.length-1];
+const totalBase = last.activos;
 
 document.getElementById('range').textContent = first.label + ' – ' + last.label + ', 2026';
 document.getElementById('updated').textContent = 'Updated ' + DATA.lastUpdated;
@@ -171,7 +172,7 @@ metrics.forEach((m, idx) => {
   card.innerHTML =
     `<h3><span class="dot" style="background:${col}"></span>${m.label}</h3>` +
     (m.explain ? `<p class="explain">${m.explain}</p>` : '') +
-    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, last[m.key])}</b> &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>`;
+    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, last[m.key])}</b>${m.share ? ` of ${fmt(totalBase)} customers` : ''} &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>`;
   charts.appendChild(card);
 
   const W = full ? 1040 : 500, H = full ? 230 : 200, P = {l:40, r:18, t:16, b:24};
