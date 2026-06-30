@@ -59,7 +59,8 @@
   .card.full{grid-column:1 / -1}
   .card h3{margin:0 0 2px;font-size:15px;display:flex;align-items:center;gap:8px}
   .dot{width:10px;height:10px;border-radius:50%}
-  .card .now{color:var(--muted);font-size:12.5px;margin:0 0 6px}
+  .card .explain{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 8px}
+  .card .now{color:var(--faint);font-size:12px;margin:0 0 6px}
   svg{display:block;width:100%;height:auto;overflow:visible}
   .axis{stroke:var(--line);stroke-width:1}
   .glabel{fill:var(--faint);font-size:11px}
@@ -146,11 +147,11 @@ const DATA = {
   "source": "candobro (Slack) — reconstructed from production database and event logs",
   "lastUpdated": "2026-06-30",
   "metrics": [
-    { "key": "activos",     "label": "Active customers (total)",       "sub": "Migrants + non-migrants",        "color": "#11212d" },
-    { "key": "onboarding",  "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#C08B5E" },
-    { "key": "migrados",    "label": "Migrants",                       "sub": "",                                "color": "#E07A5F" },
-    { "key": "noMigrados",  "label": "Non-migrants (active)",          "sub": "",                                "color": "#6A8E7F" },
-    { "key": "trimestre",   "label": "Quarter submitted or completed", "sub": "Current quarter",                 "color": "#F03906" }
+    { "key": "activos",     "label": "Active customers (total)",       "sub": "Migrants + non-migrants",        "color": "#11212d", "explain": "Total active customers (migrants plus non-migrants) — it climbed from 29 to 301 in June, driven by the two migration imports." },
+    { "key": "onboarding",  "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#C08B5E", "explain": "Clients still in onboarding (no activity assigned yet) — held flat at 24 all month as completions kept pace with new signups." },
+    { "key": "migrados",    "label": "Migrants",                       "sub": "",                                "color": "#E07A5F", "explain": "Imported migrant clients not yet activated — spikes on each import (Jun 10 and Jun 25), then drains as the team activates them." },
+    { "key": "noMigrados",  "label": "Non-migrants (active)",          "sub": "",                                "color": "#6A8E7F", "explain": "Fully set-up, active customers — rises steadily as migrants are converted into active accounts." },
+    { "key": "trimestre",   "label": "Quarter submitted or completed", "sub": "Current quarter",                 "color": "#F03906", "explain": "Clients whose current-quarter tax filing is submitted or completed — began Jun 26 and reached 4 by month-end." }
   ],
   "days": [
     { "date": "2026-06-01", "label": "Jun 1",  "activos": 29,  "onboarding": 24, "migrados": 0,   "noMigrados": 29,  "trimestre": 0, "milestone": "Start of the month baseline." },
@@ -238,6 +239,7 @@ metrics.forEach((m, idx) => {
   const vals = days.map(d => d[m.key]);
   card.innerHTML =
     `<h3><span class="dot" style="background:${col}"></span>${m.label}</h3>` +
+    (m.explain ? `<p class="explain">${m.explain}</p>` : '') +
     `<p class="now">Now <b style="color:var(--text)">${fmt(last[m.key])}</b> &middot; 30-day low ${fmt(d3.min(vals))} &middot; high ${fmt(d3.max(vals))}</p>`;
   charts.appendChild(card);
 
