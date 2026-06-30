@@ -109,7 +109,7 @@
 
   <div class="kpis" id="kpis"></div>
 
-  <h2>7-Day Trend by Metric</h2>
+  <h2>30-Day Trend by Metric</h2>
   <div class="charts" id="charts"></div>
 
   <h2>Daily Detail &amp; Milestones</h2>
@@ -117,10 +117,10 @@
 
   <h2>Key Insights</h2>
   <ul class="insights">
-    <li><b>The June 25th surge.</b> The <b>major import</b> on Jun 25 added <b>194 migrated clients</b> in a single batch, lifting the active total from 102 to 296.</li>
-    <li><b>Continuous activation.</b> Since the import, the <em>Migrants</em> bucket has been steadily converted into <em>Non-migrants (active)</em> — migrants dropped from 174 → 89 as <b>85 customers</b> were activated this week.</li>
-    <li><b>Onboarding is stable.</b> The onboarding queue held steady at <b>24</b> all week — new signups enter as others complete registration.</li>
-    <li><b>Quarter-filing progress.</b> <b>4 customer workflows</b> reached the submitted/completed stage this quarter (2 of them today).</li>
+    <li><b>Two migration waves in June.</b> The <b>Jun 10</b> import added ~74 migrants (fully activated within two weeks), then the <b>Jun 25</b> "major migration" added <b>194</b> in one batch — driving active customers from 29 at the start of the month to <b>301</b>.</li>
+    <li><b>Steady activation.</b> Migrants are continuously converted into <em>Non-migrants (active)</em>; from the Jun 25 wave, <b>105</b> were activated in just 5 days (migrants 174 → 89).</li>
+    <li><b>Onboarding held flat.</b> The onboarding queue stayed at <b>24</b> all month — registrations complete at the rate new ones arrive.</li>
+    <li><b>Q2 tax season closed strong.</b> Filing kicked off Jun 26 and wrapped today with <b>4 presentations</b> submitted/completed.</li>
   </ul>
 
   <footer id="footer"></footer>
@@ -176,12 +176,17 @@ function chart(metric){
   // area + line
   g += `<polygon points="${area}" fill="${col}" opacity="0.10"/>`;
   g += `<polyline points="${linePts}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-  // points + value labels + x labels
+  // x-axis labels: show ~7 evenly spaced so 30-day charts don't crowd
+  const step = Math.max(1, Math.ceil((days.length-1)/6));
+  // endpoints get a marker + value; x-labels are sparse
   vals.forEach((v,i)=>{
     const isEnd = i===0 || i===vals.length-1;
-    g += `<circle cx="${x(i)}" cy="${y(v)}" r="${isEnd?4:3}" fill="${col}" stroke="var(--panel)" stroke-width="1.5"/>`;
-    if(isEnd) g += `<text class="pt-val" x="${x(i)}" y="${y(v)-9}" text-anchor="${i===0?'start':'end'}">${fmt(v)}</text>`;
-    g += `<text class="glabel" x="${x(i)}" y="${H-8}" text-anchor="middle">${days[i].label.replace('Jun ','')}</text>`;
+    if(isEnd){
+      g += `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${col}" stroke="var(--panel)" stroke-width="1.5"/>`;
+      g += `<text class="pt-val" x="${x(i)}" y="${y(v)-9}" text-anchor="${i===0?'start':'end'}">${fmt(v)}</text>`;
+    }
+    if(i===0 || i===vals.length-1 || i%step===0)
+      g += `<text class="glabel" x="${x(i)}" y="${H-8}" text-anchor="middle">${days[i].label}</text>`;
   });
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${metric.label} trend">${g}</svg>`;
 }
@@ -193,7 +198,7 @@ metrics.forEach((m,idx)=>{
   charts.insertAdjacentHTML('beforeend', `
     <div class="card${full}">
       <h3><span class="dot" style="background:${col}"></span>${m.label}</h3>
-      <p class="now">Now <b style="color:var(--text)">${fmt(last[m.key])}</b> &middot; 7-day low ${fmt(Math.min(...days.map(d=>d[m.key])))} &middot; high ${fmt(Math.max(...days.map(d=>d[m.key])))}</p>
+      <p class="now">Now <b style="color:var(--text)">${fmt(last[m.key])}</b> &middot; 30-day low ${fmt(Math.min(...days.map(d=>d[m.key])))} &middot; high ${fmt(Math.max(...days.map(d=>d[m.key])))}</p>
       ${chart(m)}
     </div>`);
 });
@@ -209,7 +214,7 @@ t.innerHTML = head + body;
 
 // Regenerate button — opens the candobro DM and copies the request prompt.
 const CANDOBRO_DM = 'https://candosa.slack.com/archives/D0BBBH668TE';
-const REGEN_PROMPT = 'Can you give me the daily trend line for each of the five Customer Summary dashboard metrics (Active customers total, Onboarding, Migrants, Non-migrants active, Quarter submitted or completed) over the past 7 days?';
+const REGEN_PROMPT = 'Can you give me the daily trend for each of the five Customer Summary dashboard metrics (Active customers total, Onboarding, Migrants, Non-migrants active, Quarter submitted or completed) over the past 30 days? Please include a table with one row per day.';
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');

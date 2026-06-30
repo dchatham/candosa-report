@@ -1,6 +1,6 @@
 # Candosa — Client Summary Daily Report
 
-A self-contained daily report of the five Candosa dashboard metrics, with a 7-day
+A self-contained daily report of the five Candosa dashboard metrics, with a 30-day
 trend line for each. Data comes from **candobro** (Slack), which reconstructs it
 from the production database and event logs.
 
@@ -20,13 +20,13 @@ from the production database and event logs.
 | `build.js` | Injects `data.json` into `template.html` → `index.html`. |
 
 ## Daily update
-1. Ask candobro in Slack for the latest 7-day trend.
-2. Update `data.json` (append today's row to `days`, bump `lastUpdated`).
+1. Ask candobro in Slack for the latest 30-day trend.
+2. Replace the `days` array in `data.json` with candobro's fresh 30 rows; bump `lastUpdated`.
 3. Rebuild and publish:
    ```bash
    node build.js
    git add -A && git commit -m "Report: $(date +%F)" && git push
    ```
 
-The report keeps a rolling window — append each new day and the charts/KPIs
-update automatically.
+The report shows a rolling 30-day window — each refresh replaces the full
+`days` array and the charts/KPIs update automatically.
