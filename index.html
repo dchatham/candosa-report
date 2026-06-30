@@ -40,6 +40,7 @@
   .kpi .lbl{font-size:13px;color:var(--text);font-weight:600;line-height:1.3}
   .kpi .sub{font-size:11px;color:var(--faint);line-height:1.3;margin-top:2px;min-height:14px}
   .kpi .val{font-family:var(--font-display);font-size:34px;font-weight:600;margin-top:8px;letter-spacing:-.01em}
+  .kpi .ofbase{font-family:var(--font);font-size:13px;font-weight:400;color:var(--faint);letter-spacing:0}
   .kpi .delta{font-size:12.5px;margin-top:4px;font-weight:600}
   .up{color:#3f7d63}.down{color:var(--accent-700)}.flat{color:var(--faint)}
   .kpi .accent{height:3px;border-radius:3px;margin-bottom:13px;width:30px}
@@ -125,44 +126,45 @@ const DATA = {
     { "key": "migrados",     "label": "Migrants",                       "sub": "",                                 "color": "#E07A5F", "share": true, "explain": "Imported migrant clients not yet activated — spikes on each import (Jun 10 and Jun 25), then drains as the team activates them." },
     { "key": "noMigrados",   "label": "Non-migrants (active)",          "sub": "",                                 "color": "#6A8E7F", "share": true, "explain": "Fully set-up, active customers — rises steadily as migrants are converted into active accounts." },
     { "key": "trimestre",    "label": "Quarter submitted or completed", "sub": "Current quarter",                  "color": "#F03906", "share": true, "explain": "Clients whose current-quarter tax filing is submitted or completed — began Jun 26 and reached 4 by month-end." },
-    { "key": "pctOnboarded", "label": "Migrant activation rate",        "sub": "Onboarded ÷ total migrated imported", "color": "#7C52FF", "unit": "%", "chartOnly": true, "explain": "Share of all imported migrant clients that have been onboarded/activated — dipped on Jun 25 when the second wave enlarged the denominator, recovering to 67% by month-end." }
+    { "key": "pctOnboarded", "label": "Migrant activation rate",        "sub": "Onboarded ÷ total migrated imported", "color": "#7C52FF", "unit": "%", "chartOnly": true, "numKey": "migAct", "denKey": "migImp", "explain": "Share of all imported migrant clients that have been onboarded/activated — dipped on Jun 25 when the second wave enlarged the denominator, recovering to 67% (180 of 269) by month-end." }
   ],
   "days": [
-    { "date": "2026-06-01", "label": "Jun 1",  "activos": 29,  "onboarding": 24, "migrados": 0,   "noMigrados": 29,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Start of the month baseline." },
-    { "date": "2026-06-02", "label": "Jun 2",  "activos": 30,  "onboarding": 24, "migrados": 0,   "noMigrados": 30,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 1 new active client." },
-    { "date": "2026-06-03", "label": "Jun 3",  "activos": 30,  "onboarding": 24, "migrados": 0,   "noMigrados": 30,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Stable." },
-    { "date": "2026-06-04", "label": "Jun 4",  "activos": 32,  "onboarding": 24, "migrados": 0,   "noMigrados": 32,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 2 new active clients." },
-    { "date": "2026-06-05", "label": "Jun 5",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 2 new active clients." },
-    { "date": "2026-06-06", "label": "Jun 6",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Weekend." },
-    { "date": "2026-06-07", "label": "Jun 7",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Weekend." },
-    { "date": "2026-06-08", "label": "Jun 8",  "activos": 37,  "onboarding": 24, "migrados": 0,   "noMigrados": 37,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 3 new active clients." },
-    { "date": "2026-06-09", "label": "Jun 9",  "activos": 39,  "onboarding": 24, "migrados": 0,   "noMigrados": 39,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 2 new active clients." },
-    { "date": "2026-06-10", "label": "Jun 10", "activos": 109, "onboarding": 24, "migrados": 69,  "noMigrados": 40,  "trimestre": 0, "pctOnboarded": 3,  "milestone": "First Migration: 70 migrated clients imported; 1 activated." },
-    { "date": "2026-06-11", "label": "Jun 11", "activos": 113, "onboarding": 24, "migrados": 61,  "noMigrados": 52,  "trimestre": 0, "pctOnboarded": 19, "milestone": "Handoff Batch: 4 migrated clients imported; 12 activated." },
-    { "date": "2026-06-12", "label": "Jun 12", "activos": 108, "onboarding": 24, "migrados": 51,  "noMigrados": 57,  "trimestre": 0, "pctOnboarded": 32, "milestone": "Activated: 10 migrated clients; 5 active clients closed." },
-    { "date": "2026-06-13", "label": "Jun 13", "activos": 108, "onboarding": 24, "migrados": 51,  "noMigrados": 57,  "trimestre": 0, "pctOnboarded": 32, "milestone": "Weekend." },
-    { "date": "2026-06-14", "label": "Jun 14", "activos": 109, "onboarding": 24, "migrados": 51,  "noMigrados": 58,  "trimestre": 0, "pctOnboarded": 32, "milestone": "Weekend. 1 client activated." },
-    { "date": "2026-06-15", "label": "Jun 15", "activos": 107, "onboarding": 24, "migrados": 48,  "noMigrados": 59,  "trimestre": 0, "pctOnboarded": 37, "milestone": "Imported: 1 migrated client; 4 clients activated; 3 closed." },
-    { "date": "2026-06-16", "label": "Jun 16", "activos": 106, "onboarding": 24, "migrados": 33,  "noMigrados": 73,  "trimestre": 0, "pctOnboarded": 57, "milestone": "Activated: 15 migrated clients; 1 closed." },
-    { "date": "2026-06-17", "label": "Jun 17", "activos": 106, "onboarding": 24, "migrados": 25,  "noMigrados": 81,  "trimestre": 0, "pctOnboarded": 68, "milestone": "Activated: 8 migrated clients." },
-    { "date": "2026-06-18", "label": "Jun 18", "activos": 106, "onboarding": 24, "migrados": 21,  "noMigrados": 85,  "trimestre": 0, "pctOnboarded": 73, "milestone": "Activated: 4 migrated clients." },
-    { "date": "2026-06-19", "label": "Jun 19", "activos": 106, "onboarding": 24, "migrados": 19,  "noMigrados": 87,  "trimestre": 0, "pctOnboarded": 76, "milestone": "Activated: 2 migrated clients." },
-    { "date": "2026-06-20", "label": "Jun 20", "activos": 106, "onboarding": 24, "migrados": 19,  "noMigrados": 87,  "trimestre": 0, "pctOnboarded": 76, "milestone": "Weekend." },
-    { "date": "2026-06-21", "label": "Jun 21", "activos": 107, "onboarding": 24, "migrados": 19,  "noMigrados": 88,  "trimestre": 0, "pctOnboarded": 76, "milestone": "Weekend. 1 client activated." },
-    { "date": "2026-06-22", "label": "Jun 22", "activos": 107, "onboarding": 24, "migrados": 18,  "noMigrados": 89,  "trimestre": 0, "pctOnboarded": 77, "milestone": "Activated: 1 migrated client." },
-    { "date": "2026-06-23", "label": "Jun 23", "activos": 107, "onboarding": 24, "migrados": 14,  "noMigrados": 93,  "trimestre": 0, "pctOnboarded": 77, "milestone": "Setup: 4 active clients activated." },
-    { "date": "2026-06-24", "label": "Jun 24", "activos": 102, "onboarding": 24, "migrados": 7,   "noMigrados": 95,  "trimestre": 0, "pctOnboarded": 91, "milestone": "Last day of the first migration cohort setup." },
-    { "date": "2026-06-25", "label": "Jun 25", "activos": 296, "onboarding": 24, "migrados": 174, "noMigrados": 122, "trimestre": 0, "pctOnboarded": 35, "milestone": "Major Migration Day: 194 migrated clients imported; 27 activated." },
-    { "date": "2026-06-26", "label": "Jun 26", "activos": 296, "onboarding": 24, "migrados": 134, "noMigrados": 162, "trimestre": 1, "pctOnboarded": 50, "milestone": "Activated: 40 migrated clients; 1st Q2 tax presentation complete." },
-    { "date": "2026-06-27", "label": "Jun 27", "activos": 296, "onboarding": 24, "migrados": 132, "noMigrados": 164, "trimestre": 1, "pctOnboarded": 51, "milestone": "Weekend. 2 migrated clients activated." },
-    { "date": "2026-06-28", "label": "Jun 28", "activos": 296, "onboarding": 24, "migrados": 119, "noMigrados": 177, "trimestre": 1, "pctOnboarded": 56, "milestone": "Weekend. 13 migrated clients activated." },
-    { "date": "2026-06-29", "label": "Jun 29", "activos": 299, "onboarding": 24, "migrados": 99,  "noMigrados": 200, "trimestre": 2, "pctOnboarded": 63, "milestone": "Activated: 20 migrated clients; 2nd Q2 tax presentation complete." },
-    { "date": "2026-06-30", "label": "Jun 30", "activos": 301, "onboarding": 24, "migrados": 89,  "noMigrados": 212, "trimestre": 4, "pctOnboarded": 67, "milestone": "Activated: 10 migrated clients; 3rd & 4th Q2 tax presentations complete. 67% of all migrated clients now onboarded (180 of 269)." }
+    { "date": "2026-06-01", "label": "Jun 1",  "activos": 29,  "onboarding": 24, "migrados": 0,   "noMigrados": 29,  "trimestre": 0, "pctOnboarded": 0,  "migAct": 0,   "migImp": 0,   "milestone": "Start of the month baseline." },
+    { "date": "2026-06-02", "label": "Jun 2",  "activos": 30,  "onboarding": 24, "migrados": 0,   "noMigrados": 30,  "trimestre": 0, "pctOnboarded": 0,  "migAct": 0,   "migImp": 0,   "milestone": "Created: 1 new active client." },
+    { "date": "2026-06-03", "label": "Jun 3",  "activos": 30,  "onboarding": 24, "migrados": 0,   "noMigrados": 30,  "trimestre": 0, "pctOnboarded": 0,  "migAct": 0,   "migImp": 0,   "milestone": "Stable." },
+    { "date": "2026-06-04", "label": "Jun 4",  "activos": 32,  "onboarding": 24, "migrados": 0,   "noMigrados": 32,  "trimestre": 0, "pctOnboarded": 0,  "migAct": 0,   "migImp": 0,   "milestone": "Created: 2 new active clients." },
+    { "date": "2026-06-05", "label": "Jun 5",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "pctOnboarded": 0,  "migAct": 0,   "migImp": 0,   "milestone": "Created: 2 new active clients." },
+    { "date": "2026-06-06", "label": "Jun 6",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "pctOnboarded": 0,  "migAct": 0,   "migImp": 0,   "milestone": "Weekend." },
+    { "date": "2026-06-07", "label": "Jun 7",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "pctOnboarded": 0,  "migAct": 0,   "migImp": 0,   "milestone": "Weekend." },
+    { "date": "2026-06-08", "label": "Jun 8",  "activos": 37,  "onboarding": 24, "migrados": 0,   "noMigrados": 37,  "trimestre": 0, "pctOnboarded": 0,  "migAct": 0,   "migImp": 0,   "milestone": "Created: 3 new active clients." },
+    { "date": "2026-06-09", "label": "Jun 9",  "activos": 39,  "onboarding": 24, "migrados": 0,   "noMigrados": 39,  "trimestre": 0, "pctOnboarded": 0,  "migAct": 0,   "migImp": 0,   "milestone": "Created: 2 new active clients." },
+    { "date": "2026-06-10", "label": "Jun 10", "activos": 109, "onboarding": 24, "migrados": 69,  "noMigrados": 40,  "trimestre": 0, "pctOnboarded": 3,  "migAct": 2,   "migImp": 70,  "milestone": "First Migration: 70 migrated clients imported; 1 activated." },
+    { "date": "2026-06-11", "label": "Jun 11", "activos": 113, "onboarding": 24, "migrados": 61,  "noMigrados": 52,  "trimestre": 0, "pctOnboarded": 19, "migAct": 14,  "migImp": 74,  "milestone": "Handoff Batch: 4 migrated clients imported; 12 activated." },
+    { "date": "2026-06-12", "label": "Jun 12", "activos": 108, "onboarding": 24, "migrados": 51,  "noMigrados": 57,  "trimestre": 0, "pctOnboarded": 32, "migAct": 24,  "migImp": 74,  "milestone": "Activated: 10 migrated clients; 5 active clients closed." },
+    { "date": "2026-06-13", "label": "Jun 13", "activos": 108, "onboarding": 24, "migrados": 51,  "noMigrados": 57,  "trimestre": 0, "pctOnboarded": 32, "migAct": 24,  "migImp": 74,  "milestone": "Weekend." },
+    { "date": "2026-06-14", "label": "Jun 14", "activos": 109, "onboarding": 24, "migrados": 51,  "noMigrados": 58,  "trimestre": 0, "pctOnboarded": 32, "migAct": 24,  "migImp": 74,  "milestone": "Weekend. 1 client activated." },
+    { "date": "2026-06-15", "label": "Jun 15", "activos": 107, "onboarding": 24, "migrados": 48,  "noMigrados": 59,  "trimestre": 0, "pctOnboarded": 37, "migAct": 28,  "migImp": 75,  "milestone": "Imported: 1 migrated client; 4 clients activated; 3 closed." },
+    { "date": "2026-06-16", "label": "Jun 16", "activos": 106, "onboarding": 24, "migrados": 33,  "noMigrados": 73,  "trimestre": 0, "pctOnboarded": 57, "migAct": 43,  "migImp": 75,  "milestone": "Activated: 15 migrated clients; 1 closed." },
+    { "date": "2026-06-17", "label": "Jun 17", "activos": 106, "onboarding": 24, "migrados": 25,  "noMigrados": 81,  "trimestre": 0, "pctOnboarded": 68, "migAct": 51,  "migImp": 75,  "milestone": "Activated: 8 migrated clients." },
+    { "date": "2026-06-18", "label": "Jun 18", "activos": 106, "onboarding": 24, "migrados": 21,  "noMigrados": 85,  "trimestre": 0, "pctOnboarded": 73, "migAct": 55,  "migImp": 75,  "milestone": "Activated: 4 migrated clients." },
+    { "date": "2026-06-19", "label": "Jun 19", "activos": 106, "onboarding": 24, "migrados": 19,  "noMigrados": 87,  "trimestre": 0, "pctOnboarded": 76, "migAct": 57,  "migImp": 75,  "milestone": "Activated: 2 migrated clients." },
+    { "date": "2026-06-20", "label": "Jun 20", "activos": 106, "onboarding": 24, "migrados": 19,  "noMigrados": 87,  "trimestre": 0, "pctOnboarded": 76, "migAct": 57,  "migImp": 75,  "milestone": "Weekend." },
+    { "date": "2026-06-21", "label": "Jun 21", "activos": 107, "onboarding": 24, "migrados": 19,  "noMigrados": 88,  "trimestre": 0, "pctOnboarded": 76, "migAct": 57,  "migImp": 75,  "milestone": "Weekend. 1 client activated." },
+    { "date": "2026-06-22", "label": "Jun 22", "activos": 107, "onboarding": 24, "migrados": 18,  "noMigrados": 89,  "trimestre": 0, "pctOnboarded": 77, "migAct": 58,  "migImp": 75,  "milestone": "Activated: 1 migrated client." },
+    { "date": "2026-06-23", "label": "Jun 23", "activos": 107, "onboarding": 24, "migrados": 14,  "noMigrados": 93,  "trimestre": 0, "pctOnboarded": 77, "migAct": 58,  "migImp": 75,  "milestone": "Setup: 4 active clients activated." },
+    { "date": "2026-06-24", "label": "Jun 24", "activos": 102, "onboarding": 24, "migrados": 7,   "noMigrados": 95,  "trimestre": 0, "pctOnboarded": 91, "migAct": 68,  "migImp": 75,  "milestone": "Last day of the first migration cohort setup." },
+    { "date": "2026-06-25", "label": "Jun 25", "activos": 296, "onboarding": 24, "migrados": 174, "noMigrados": 122, "trimestre": 0, "pctOnboarded": 35, "migAct": 95,  "migImp": 269, "milestone": "Major Migration Day: 194 migrated clients imported; 27 activated." },
+    { "date": "2026-06-26", "label": "Jun 26", "activos": 296, "onboarding": 24, "migrados": 134, "noMigrados": 162, "trimestre": 1, "pctOnboarded": 50, "migAct": 135, "migImp": 269, "milestone": "Activated: 40 migrated clients; 1st Q2 tax presentation complete." },
+    { "date": "2026-06-27", "label": "Jun 27", "activos": 296, "onboarding": 24, "migrados": 132, "noMigrados": 164, "trimestre": 1, "pctOnboarded": 51, "migAct": 137, "migImp": 269, "milestone": "Weekend. 2 migrated clients activated." },
+    { "date": "2026-06-28", "label": "Jun 28", "activos": 296, "onboarding": 24, "migrados": 119, "noMigrados": 177, "trimestre": 1, "pctOnboarded": 56, "migAct": 150, "migImp": 269, "milestone": "Weekend. 13 migrated clients activated." },
+    { "date": "2026-06-29", "label": "Jun 29", "activos": 299, "onboarding": 24, "migrados": 99,  "noMigrados": 200, "trimestre": 2, "pctOnboarded": 63, "migAct": 170, "migImp": 269, "milestone": "Activated: 20 migrated clients; 2nd Q2 tax presentation complete." },
+    { "date": "2026-06-30", "label": "Jun 30", "activos": 301, "onboarding": 24, "migrados": 89,  "noMigrados": 212, "trimestre": 4, "pctOnboarded": 67, "migAct": 180, "migImp": 269, "milestone": "Activated: 10 migrated clients; 3rd & 4th Q2 tax presentations complete. 67% of all migrated clients now onboarded (180 of 269)." }
   ]
 };
 
 const fmt = n => n.toLocaleString('en-US');
 const fmtV = (m, n) => fmt(n) + (m.unit || '');
+const hard = (m, d) => (m.numKey && d[m.denKey]) ? ` (${fmt(d[m.numKey])} of ${fmt(d[m.denKey])})` : '';
 const cssVar = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 
 const days = DATA.days;
@@ -185,7 +187,7 @@ metrics.filter(m=>!m.chartOnly).forEach(m=>{
       <div class="accent" style="background:${col}"></div>
       <div class="lbl">${m.label}</div>
       <div class="sub">${m.sub||''}</div>
-      <div class="val">${fmt(now)}</div>
+      <div class="val">${fmt(now)}${m.share ? ` <span class="ofbase">of ${fmt(totalBase)}</span>` : ''}</div>
       <div class="delta ${cls}">${sign}${fmt(Math.abs(d))} <span style="color:var(--faint);font-weight:400">vs ${first.label}</span></div>
     </div>`);
 });
@@ -202,7 +204,7 @@ function renderDetail(i){
   const d = days[i];
   detail.innerHTML =
     `<span class="dt-date">${d.label}<span class="dt-hint"> · 2026</span></span>` +
-    metrics.map(m => `<span class="dt-m"><span class="dt-dot" style="background:${cssVar('--'+m.key)}"></span>${m.label}: <b>${fmtV(m, d[m.key])}</b></span>`).join('') +
+    metrics.map(m => `<span class="dt-m"><span class="dt-dot" style="background:${cssVar('--'+m.key)}"></span>${m.label}: <b>${fmtV(m, d[m.key])}</b>${hard(m, d)}</span>`).join('') +
     (d.milestone ? `<span class="dt-note">${d.milestone}</span>` : '');
 }
 function setActive(i){ updaters.forEach(u => u(i)); renderDetail(i); }
@@ -216,7 +218,7 @@ metrics.forEach((m, idx) => {
   card.innerHTML =
     `<h3><span class="dot" style="background:${col}"></span>${m.label}</h3>` +
     (m.explain ? `<p class="explain">${m.explain}</p>` : '') +
-    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, last[m.key])}</b>${m.share ? ` of ${fmt(totalBase)} customers` : ''} &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>`;
+    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, last[m.key])}</b>${hard(m, last)}${m.share ? ` of ${fmt(totalBase)} customers` : ''} &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>`;
   charts.appendChild(card);
 
   const W = full ? 1040 : 500, H = full ? 230 : 200, P = {l:40, r:18, t:16, b:24};
