@@ -3,11 +3,11 @@
   "source": "candobro (Slack) — reconstructed from production database and event logs",
   "lastUpdated": "2026-06-30",
   "metrics": [
-    { "key": "activos",     "label": "Active customers (total)",       "sub": "Migrants + non-migrants",        "color": "#2563eb" },
-    { "key": "onboarding",  "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#7c3aed" },
-    { "key": "migrados",    "label": "Migrants",                       "sub": "",                                "color": "#f59e0b" },
-    { "key": "noMigrados",  "label": "Non-migrants (active)",          "sub": "",                                "color": "#10b981" },
-    { "key": "trimestre",   "label": "Quarter submitted or completed", "sub": "Current quarter",                 "color": "#ef4444" }
+    { "key": "activos",     "label": "Active customers (total)",       "sub": "Migrants + non-migrants",        "color": "#11212d" },
+    { "key": "onboarding",  "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#C08B5E" },
+    { "key": "migrados",    "label": "Migrants",                       "sub": "",                                "color": "#E07A5F" },
+    { "key": "noMigrados",  "label": "Non-migrants (active)",          "sub": "",                                "color": "#6A8E7F" },
+    { "key": "trimestre",   "label": "Quarter submitted or completed", "sub": "Current quarter",                 "color": "#F03906" }
   ],
   "days": [
     { "date": "2026-06-24", "label": "Jun 24", "activos": 102, "onboarding": 24, "migrados": 7,   "noMigrados": 95,  "trimestre": 0, "milestone": "Baseline before the major migration." },
