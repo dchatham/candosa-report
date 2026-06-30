@@ -53,6 +53,10 @@
   .dot{width:10px;height:10px;border-radius:50%}
   .card .explain{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 8px}
   .card .now{color:var(--faint);font-size:12px;margin:0 0 6px}
+  .card .legend{display:flex;gap:18px;margin:0 0 8px;font-size:12px;color:var(--muted);align-items:center}
+  .card .legend .lg{display:flex;align-items:center;gap:7px}
+  .card .legend .lgline{display:inline-block;width:18px;height:0;border-top:2px solid}
+  .card .legend .lgline.dash{border-top-style:dashed}
   svg{display:block;width:100%;height:auto;overflow:visible}
   .axis{stroke:var(--line);stroke-width:1}
   .glabel{fill:var(--faint);font-size:11px}
@@ -171,10 +175,12 @@ metrics.forEach((m, idx) => {
   const card = document.createElement('div');
   card.className = 'card' + full;
   const vals = days.map(d => d[m.key]);
+  const oKey = m.overlay, oVals = oKey ? days.map(d => d[oKey]) : null, oCol = oKey ? cssVar('--'+oKey) : null;
   card.innerHTML =
     `<h3><span class="dot" style="background:${col}"></span>${m.label}</h3>` +
     (m.explain ? `<p class="explain">${m.explain}</p>` : '') +
-    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, last[m.key])}</b>${hard(m, last)}${m.share ? ` of ${fmt(totalBase)} customers` : ''} &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>`;
+    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, last[m.key])}</b>${hard(m, last)}${m.share ? ` of ${fmt(totalBase)} customers` : ''}${oKey ? ` &middot; activated <b style="color:var(--text)">${fmt(last[oKey])}</b>` : ''} &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>` +
+    (oKey ? `<p class="legend"><span class="lg"><span class="lgline" style="border-top-color:${col}"></span>${m.label}</span><span class="lg"><span class="lgline dash" style="border-top-color:${oCol}"></span>${m.overlayLabel}</span></p>` : '');
   charts.appendChild(card);
 
   const W = full ? 1040 : 500, H = full ? 230 : 200, P = {l:40, r:18, t:16, b:24};
@@ -183,7 +189,8 @@ metrics.forEach((m, idx) => {
     .attr('role', 'img').attr('aria-label', `${m.label} 30-day trend`);
 
   const x = d3.scaleTime().domain(d3.extent(dates)).range([P.l, W-P.r]);
-  const ymin = d3.min(vals), ymax = d3.max(vals), pad = (ymax-ymin)*0.15 || 1;
+  const scaleVals = oVals ? vals.concat(oVals) : vals;
+  const ymin = d3.min(scaleVals), ymax = d3.max(scaleVals), pad = (ymax-ymin)*0.15 || 1;
   const y = d3.scaleLinear().domain([Math.max(0, ymin-pad), ymax+pad]).range([H-P.b, P.t]);
 
   const yTicks = y.ticks(4);
@@ -200,16 +207,28 @@ metrics.forEach((m, idx) => {
   svg.append('path').datum(vals).attr('d', area).attr('fill', col).attr('opacity', 0.10);
   svg.append('path').datum(vals).attr('d', line).attr('fill', 'none').attr('stroke', col)
     .attr('stroke-width', 2.5).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
+  if (oVals) {
+    svg.append('path').datum(oVals).attr('d', line).attr('fill', 'none').attr('stroke', oCol)
+      .attr('stroke-width', 2.5).attr('stroke-dasharray', '5 4').attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
+  }
 
   const fLine = svg.append('line').attr('class', 'focusline').attr('y1', P.t).attr('y2', H-P.b).style('opacity', 0);
   const fDot = svg.append('circle').attr('r', 4.5).attr('fill', col).attr('stroke', 'var(--panel)').attr('stroke-width', 2).style('opacity', 0);
   const fVal = svg.append('text').attr('class', 'pt-val').style('opacity', 0);
+  const oDot = oVals ? svg.append('circle').attr('r', 4.5).attr('fill', oCol).attr('stroke', 'var(--panel)').attr('stroke-width', 2).style('opacity', 0) : null;
+  const oVal = oVals ? svg.append('text').attr('class', 'pt-val').style('fill', oCol).style('opacity', 0) : null;
 
   updaters.push(i => {
     const px = x(dates[i]), py = y(vals[i]);
+    const anchor = px > W-60 ? 'end' : px < 60 ? 'start' : 'middle';
     fLine.attr('x1', px).attr('x2', px).style('opacity', 1);
     fDot.attr('cx', px).attr('cy', py).style('opacity', 1);
-    fVal.attr('x', px).attr('y', py-10).attr('text-anchor', px > W-60 ? 'end' : px < 60 ? 'start' : 'middle').text(fmtV(m, vals[i])).style('opacity', 1);
+    fVal.attr('x', px).attr('y', py-10).attr('text-anchor', anchor).text(fmtV(m, vals[i])).style('opacity', 1);
+    if (oVals) {
+      const oy = y(oVals[i]);
+      oDot.attr('cx', px).attr('cy', oy).style('opacity', 1);
+      oVal.attr('x', px).attr('y', oy+17).attr('text-anchor', anchor).text(fmt(oVals[i])).style('opacity', 1);
+    }
   });
 
   svg.append('rect').attr('x', P.l).attr('y', P.t).attr('width', W-P.l-P.r).attr('height', H-P.t-P.b)

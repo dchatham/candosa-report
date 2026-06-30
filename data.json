@@ -3,7 +3,7 @@
   "source": "candobro (Slack) — reconstructed from production database and event logs",
   "lastUpdated": "2026-06-30",
   "metrics": [
-    { "key": "activos",      "label": "Active customers (total)",       "sub": "Migrants + non-migrants",          "color": "#11212d", "explain": "Total active customers (migrants plus non-migrants) — it climbed from 29 to 301 in June, driven by the two migration imports." },
+    { "key": "activos",      "label": "Active customers (total)",       "sub": "Migrants + non-migrants",          "color": "#11212d", "overlay": "noMigrados", "overlayLabel": "Activated (non-migrants)", "explain": "Total active customers (migrants plus non-migrants) versus those already activated — the gap between the lines is migrants still pending activation." },
     { "key": "onboarding",   "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#C08B5E", "share": true, "explain": "Clients still in onboarding (no activity assigned yet) — held flat at 24 all month as completions kept pace with new signups." },
     { "key": "migrados",     "label": "Migrants",                       "sub": "",                                 "color": "#E07A5F", "share": true, "explain": "Imported migrant clients not yet activated — spikes on each import (Jun 10 and Jun 25), then drains as the team activates them." },
     { "key": "noMigrados",   "label": "Non-migrants (active)",          "sub": "",                                 "color": "#6A8E7F", "share": true, "explain": "Fully set-up, active customers — rises steadily as migrants are converted into active accounts." },
