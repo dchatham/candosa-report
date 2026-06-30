@@ -28,8 +28,9 @@
   /* KPI cards */
   .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
   .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
-  .kpi .lbl{font-size:12px;color:var(--muted);line-height:1.3;min-height:31px}
-  .kpi .val{font-size:30px;font-weight:700;margin-top:8px;letter-spacing:-.02em}
+  .kpi .lbl{font-size:13px;color:var(--text);font-weight:600;line-height:1.3}
+  .kpi .sub{font-size:11px;color:var(--faint);line-height:1.3;margin-top:2px;min-height:14px}
+  .kpi .val{font-size:30px;font-weight:700;margin-top:10px;letter-spacing:-.02em}
   .kpi .delta{font-size:12.5px;margin-top:4px;font-weight:600}
   .up{color:#34d399}.down{color:#f87171}.flat{color:var(--faint)}
   .kpi .accent{height:3px;border-radius:3px;margin-bottom:13px;width:30px}
@@ -96,9 +97,9 @@
   <h2>Key Insights</h2>
   <ul class="insights">
     <li><b>The June 25th surge.</b> The <b>major import</b> on Jun 25 added <b>194 migrated clients</b> in a single batch, lifting the active total from 102 to 296.</li>
-    <li><b>Continuous activation.</b> Since the import, the <em>Migrados</em> bucket has been steadily converted into <em>No migrados (activos)</em> — migrated dropped from 174 → 89 as <b>85 clients</b> were activated this week.</li>
+    <li><b>Continuous activation.</b> Since the import, the <em>Migrants</em> bucket has been steadily converted into <em>Non-migrants (active)</em> — migrants dropped from 174 → 89 as <b>85 customers</b> were activated this week.</li>
     <li><b>Onboarding is stable.</b> The onboarding queue held steady at <b>24</b> all week — new signups enter as others complete registration.</li>
-    <li><b>Tax-season progress.</b> <b>4 client workflows</b> reached the finalized tax-presentation stage this week (2 of them today).</li>
+    <li><b>Quarter-filing progress.</b> <b>4 customer workflows</b> reached the submitted/completed stage this quarter (2 of them today).</li>
   </ul>
 
   <footer id="footer"></footer>
@@ -110,11 +111,11 @@ const DATA = {
   "source": "candobro (Slack) — reconstructed from production database and event logs",
   "lastUpdated": "2026-06-30",
   "metrics": [
-    { "key": "activos",     "label": "Clientes activos (total)", "color": "#2563eb" },
-    { "key": "onboarding",  "label": "En onboarding",            "color": "#7c3aed" },
-    { "key": "migrados",    "label": "Migrados",                 "color": "#f59e0b" },
-    { "key": "noMigrados",  "label": "No migrados (activos)",    "color": "#10b981" },
-    { "key": "trimestre",   "label": "Trimestre presentado",     "color": "#ef4444" }
+    { "key": "activos",     "label": "Active customers (total)",       "sub": "Migrants + non-migrants",        "color": "#2563eb" },
+    { "key": "onboarding",  "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#7c3aed" },
+    { "key": "migrados",    "label": "Migrants",                       "sub": "",                                "color": "#f59e0b" },
+    { "key": "noMigrados",  "label": "Non-migrants (active)",          "sub": "",                                "color": "#10b981" },
+    { "key": "trimestre",   "label": "Quarter submitted or completed", "sub": "Current quarter",                 "color": "#ef4444" }
   ],
   "days": [
     { "date": "2026-06-24", "label": "Jun 24", "activos": 102, "onboarding": 24, "migrados": 7,   "noMigrados": 95,  "trimestre": 0, "milestone": "Baseline before the major migration." },
@@ -148,6 +149,7 @@ metrics.forEach(m=>{
     <div class="kpi">
       <div class="accent" style="background:${col}"></div>
       <div class="lbl">${m.label}</div>
+      <div class="sub">${m.sub||''}</div>
       <div class="val">${fmt(now)}</div>
       <div class="delta ${cls}">${sign}${fmt(Math.abs(d))} <span style="color:var(--faint);font-weight:400">vs ${first.label}</span></div>
     </div>`);
@@ -206,7 +208,7 @@ t.innerHTML = head + body;
 
 document.getElementById('footer').innerHTML =
   `Generated from candobro's daily reconstruction of the production database and event logs. ` +
-  `Metrics: Clientes activos (total), En onboarding, Migrados, No migrados (activos), Trimestre presentado. ` +
+  `Metrics: Active customers (total), Onboarding, Migrants, Non-migrants (active), Quarter submitted or completed. ` +
   `&copy; Candosa · ${DATA.lastUpdated}`;
 </script>
 </body>
