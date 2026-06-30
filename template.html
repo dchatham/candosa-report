@@ -22,6 +22,15 @@
   .sub{color:var(--muted);font-size:14px;margin-top:6px}
   .range{color:var(--faint);font-size:13px;text-align:right}
   .range b{color:var(--text)}
+  #regen{margin-top:10px;background:var(--activos);color:#fff;border:none;border-radius:8px;
+    padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:filter .15s}
+  #regen:hover{filter:brightness(1.12)}
+  #regen:active{transform:translateY(1px)}
+  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:#0f1626;border:1px solid var(--line);color:var(--text);padding:11px 18px;
+    border-radius:10px;font-size:13.5px;box-shadow:0 8px 30px rgba(0,0,0,.4);opacity:0;
+    pointer-events:none;transition:opacity .2s,transform .2s;max-width:90vw;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
     margin:42px 0 16px;font-weight:600}
 
@@ -83,8 +92,10 @@
       <div><b id="range">—</b></div>
       <div>Source: candobro · prod DB &amp; event logs</div>
       <div id="updated">—</div>
+      <button id="regen" title="Opens the candobro Slack DM and copies the request to your clipboard">↻ Regenerate via candobro</button>
     </div>
   </header>
+  <div id="toast"></div>
 
   <div class="kpis" id="kpis"></div>
 
@@ -185,6 +196,21 @@ let body = '<tbody>' + days.map((d,i)=>{
   return `<tr${today}><td>${d.label}</td>` + metrics.map(m=>`<td>${fmt(d[m.key])}</td>`).join('') + `<td>${d.milestone}</td></tr>`;
 }).join('') + '</tbody>';
 t.innerHTML = head + body;
+
+// Regenerate button — opens the candobro DM and copies the request prompt.
+const CANDOBRO_DM = 'https://candosa.slack.com/archives/D0BBBH668TE';
+const REGEN_PROMPT = 'Can you give me the daily trend line for each of the five Customer Summary dashboard metrics (Active customers total, Onboarding, Migrants, Non-migrants active, Quarter submitted or completed) over the past 7 days?';
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),4200);
+}
+document.getElementById('regen').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText(REGEN_PROMPT);
+       toast('Request copied — paste it to candobro in Slack, then send.'); }
+  catch(e){ toast('Opening candobro… paste your 7-day trend request.'); }
+  window.open(CANDOBRO_DM, '_blank', 'noopener');
+});
 
 document.getElementById('footer').innerHTML =
   `Generated from candobro's daily reconstruction of the production database and event logs. ` +
