@@ -17,7 +17,7 @@
     --font:"Roboto",-apple-system,"Segoe UI",Arial,sans-serif;
     --font-display:"Playfair Display",Georgia,serif;
     --activos:#11212d; --onboarding:#C08B5E; --migrados:#E07A5F;
-    --noMigrados:#6A8E7F; --trimestre:#F03906;
+    --noMigrados:#6A8E7F; --trimestre:#F03906; --pctOnboarded:#7C52FF;
   }
   *{box-sizing:border-box}
   html,body{margin:0;background:var(--bg);color:var(--text);
@@ -31,15 +31,6 @@
   .sub{color:var(--muted);font-size:14px;margin-top:6px}
   .range{color:var(--faint);font-size:13px;text-align:right}
   .range b{color:var(--text)}
-  #regen{margin-top:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;
-    padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:filter .15s}
-  #regen:hover{filter:brightness(1.12)}
-  #regen:active{transform:translateY(1px)}
-  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
-    background:var(--text);border:1px solid var(--text);color:#fff;padding:11px 18px;
-    border-radius:10px;font-size:13.5px;box-shadow:0 8px 30px rgba(17,33,45,.25);opacity:0;
-    pointer-events:none;transition:opacity .2s,transform .2s;max-width:90vw;text-align:center}
-  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
     margin:42px 0 16px;font-weight:600}
 
@@ -78,19 +69,6 @@
     vertical-align:middle;margin-right:5px}
   .detail .dt-note{flex-basis:100%;color:var(--faint);margin-top:2px;line-height:1.4}
 
-  /* table */
-  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--panel);
-    border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
-  th:first-child,td:first-child{text-align:left}
-  th:last-child,td:last-child{text-align:left;white-space:normal;color:var(--muted);min-width:240px}
-  thead th{background:var(--panel2);color:var(--muted);font-weight:600;font-size:12px;
-    text-transform:uppercase;letter-spacing:.04em}
-  tbody tr:last-child td{border-bottom:none}
-  tbody tr.today{background:rgba(240,57,6,.06)}
-  tbody tr.today td:first-child{font-weight:700}
-  .tablewrap{overflow-x:auto}
-
   ul.insights{list-style:none;padding:0;margin:0;display:grid;gap:12px}
   ul.insights li{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
     border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.5}
@@ -115,19 +93,14 @@
       <div><b id="range">—</b></div>
       <div>Source: candobro · prod DB &amp; event logs</div>
       <div id="updated">—</div>
-      <button id="regen" title="Opens the candobro Slack DM and copies the request to your clipboard">↻ Regenerate via candobro</button>
     </div>
   </header>
-  <div id="toast"></div>
 
   <div class="kpis" id="kpis"></div>
 
   <h2>30-Day Trend by Metric</h2>
   <div class="detail" id="detail"></div>
   <div class="charts" id="charts"></div>
-
-  <h2>Daily Detail &amp; Milestones</h2>
-  <div class="tablewrap"><table id="table"></table></div>
 
   <h2>Key Insights</h2>
   <ul class="insights">
@@ -147,47 +120,49 @@ const DATA = {
   "source": "candobro (Slack) — reconstructed from production database and event logs",
   "lastUpdated": "2026-06-30",
   "metrics": [
-    { "key": "activos",     "label": "Active customers (total)",       "sub": "Migrants + non-migrants",        "color": "#11212d", "explain": "Total active customers (migrants plus non-migrants) — it climbed from 29 to 301 in June, driven by the two migration imports." },
-    { "key": "onboarding",  "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#C08B5E", "explain": "Clients still in onboarding (no activity assigned yet) — held flat at 24 all month as completions kept pace with new signups." },
-    { "key": "migrados",    "label": "Migrants",                       "sub": "",                                "color": "#E07A5F", "explain": "Imported migrant clients not yet activated — spikes on each import (Jun 10 and Jun 25), then drains as the team activates them." },
-    { "key": "noMigrados",  "label": "Non-migrants (active)",          "sub": "",                                "color": "#6A8E7F", "explain": "Fully set-up, active customers — rises steadily as migrants are converted into active accounts." },
-    { "key": "trimestre",   "label": "Quarter submitted or completed", "sub": "Current quarter",                 "color": "#F03906", "explain": "Clients whose current-quarter tax filing is submitted or completed — began Jun 26 and reached 4 by month-end." }
+    { "key": "activos",      "label": "Active customers (total)",       "sub": "Migrants + non-migrants",          "color": "#11212d", "explain": "Total active customers (migrants plus non-migrants) — it climbed from 29 to 301 in June, driven by the two migration imports." },
+    { "key": "onboarding",   "label": "Onboarding",                     "sub": "Assets without assigned activity", "color": "#C08B5E", "explain": "Clients still in onboarding (no activity assigned yet) — held flat at 24 all month as completions kept pace with new signups." },
+    { "key": "migrados",     "label": "Migrants",                       "sub": "",                                 "color": "#E07A5F", "explain": "Imported migrant clients not yet activated — spikes on each import (Jun 10 and Jun 25), then drains as the team activates them." },
+    { "key": "noMigrados",   "label": "Non-migrants (active)",          "sub": "",                                 "color": "#6A8E7F", "explain": "Fully set-up, active customers — rises steadily as migrants are converted into active accounts." },
+    { "key": "trimestre",    "label": "Quarter submitted or completed", "sub": "Current quarter",                  "color": "#F03906", "explain": "Clients whose current-quarter tax filing is submitted or completed — began Jun 26 and reached 4 by month-end." },
+    { "key": "pctOnboarded", "label": "Migrant activation rate",        "sub": "Onboarded ÷ total migrated imported", "color": "#7C52FF", "unit": "%", "chartOnly": true, "explain": "Share of all imported migrant clients that have been onboarded/activated — dipped on Jun 25 when the second wave enlarged the denominator, recovering to 67% by month-end." }
   ],
   "days": [
-    { "date": "2026-06-01", "label": "Jun 1",  "activos": 29,  "onboarding": 24, "migrados": 0,   "noMigrados": 29,  "trimestre": 0, "milestone": "Start of the month baseline." },
-    { "date": "2026-06-02", "label": "Jun 2",  "activos": 30,  "onboarding": 24, "migrados": 0,   "noMigrados": 30,  "trimestre": 0, "milestone": "Created: 1 new active client." },
-    { "date": "2026-06-03", "label": "Jun 3",  "activos": 30,  "onboarding": 24, "migrados": 0,   "noMigrados": 30,  "trimestre": 0, "milestone": "Stable." },
-    { "date": "2026-06-04", "label": "Jun 4",  "activos": 32,  "onboarding": 24, "migrados": 0,   "noMigrados": 32,  "trimestre": 0, "milestone": "Created: 2 new active clients." },
-    { "date": "2026-06-05", "label": "Jun 5",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "milestone": "Created: 2 new active clients." },
-    { "date": "2026-06-06", "label": "Jun 6",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "milestone": "Weekend." },
-    { "date": "2026-06-07", "label": "Jun 7",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "milestone": "Weekend." },
-    { "date": "2026-06-08", "label": "Jun 8",  "activos": 37,  "onboarding": 24, "migrados": 0,   "noMigrados": 37,  "trimestre": 0, "milestone": "Created: 3 new active clients." },
-    { "date": "2026-06-09", "label": "Jun 9",  "activos": 39,  "onboarding": 24, "migrados": 0,   "noMigrados": 39,  "trimestre": 0, "milestone": "Created: 2 new active clients." },
-    { "date": "2026-06-10", "label": "Jun 10", "activos": 109, "onboarding": 24, "migrados": 69,  "noMigrados": 40,  "trimestre": 0, "milestone": "First Migration: 70 migrated clients imported; 1 activated." },
-    { "date": "2026-06-11", "label": "Jun 11", "activos": 113, "onboarding": 24, "migrados": 61,  "noMigrados": 52,  "trimestre": 0, "milestone": "Handoff Batch: 4 migrated clients imported; 12 activated." },
-    { "date": "2026-06-12", "label": "Jun 12", "activos": 108, "onboarding": 24, "migrados": 51,  "noMigrados": 57,  "trimestre": 0, "milestone": "Activated: 10 migrated clients; 5 active clients closed." },
-    { "date": "2026-06-13", "label": "Jun 13", "activos": 108, "onboarding": 24, "migrados": 51,  "noMigrados": 57,  "trimestre": 0, "milestone": "Weekend." },
-    { "date": "2026-06-14", "label": "Jun 14", "activos": 109, "onboarding": 24, "migrados": 51,  "noMigrados": 58,  "trimestre": 0, "milestone": "Weekend. 1 client activated." },
-    { "date": "2026-06-15", "label": "Jun 15", "activos": 107, "onboarding": 24, "migrados": 48,  "noMigrados": 59,  "trimestre": 0, "milestone": "Imported: 1 migrated client; 4 clients activated; 3 closed." },
-    { "date": "2026-06-16", "label": "Jun 16", "activos": 106, "onboarding": 24, "migrados": 33,  "noMigrados": 73,  "trimestre": 0, "milestone": "Activated: 15 migrated clients; 1 closed." },
-    { "date": "2026-06-17", "label": "Jun 17", "activos": 106, "onboarding": 24, "migrados": 25,  "noMigrados": 81,  "trimestre": 0, "milestone": "Activated: 8 migrated clients." },
-    { "date": "2026-06-18", "label": "Jun 18", "activos": 106, "onboarding": 24, "migrados": 21,  "noMigrados": 85,  "trimestre": 0, "milestone": "Activated: 4 migrated clients." },
-    { "date": "2026-06-19", "label": "Jun 19", "activos": 106, "onboarding": 24, "migrados": 19,  "noMigrados": 87,  "trimestre": 0, "milestone": "Activated: 2 migrated clients." },
-    { "date": "2026-06-20", "label": "Jun 20", "activos": 106, "onboarding": 24, "migrados": 19,  "noMigrados": 87,  "trimestre": 0, "milestone": "Weekend." },
-    { "date": "2026-06-21", "label": "Jun 21", "activos": 107, "onboarding": 24, "migrados": 19,  "noMigrados": 88,  "trimestre": 0, "milestone": "Weekend. 1 client activated." },
-    { "date": "2026-06-22", "label": "Jun 22", "activos": 107, "onboarding": 24, "migrados": 18,  "noMigrados": 89,  "trimestre": 0, "milestone": "Activated: 1 migrated client." },
-    { "date": "2026-06-23", "label": "Jun 23", "activos": 107, "onboarding": 24, "migrados": 14,  "noMigrados": 93,  "trimestre": 0, "milestone": "Setup: 4 active clients activated." },
-    { "date": "2026-06-24", "label": "Jun 24", "activos": 102, "onboarding": 24, "migrados": 7,   "noMigrados": 95,  "trimestre": 0, "milestone": "Last day of the first migration cohort setup." },
-    { "date": "2026-06-25", "label": "Jun 25", "activos": 296, "onboarding": 24, "migrados": 174, "noMigrados": 122, "trimestre": 0, "milestone": "Major Migration Day: 194 migrated clients imported; 27 activated." },
-    { "date": "2026-06-26", "label": "Jun 26", "activos": 296, "onboarding": 24, "migrados": 134, "noMigrados": 162, "trimestre": 1, "milestone": "Activated: 40 migrated clients; 1st Q2 tax presentation complete." },
-    { "date": "2026-06-27", "label": "Jun 27", "activos": 296, "onboarding": 24, "migrados": 132, "noMigrados": 164, "trimestre": 1, "milestone": "Weekend. 2 migrated clients activated." },
-    { "date": "2026-06-28", "label": "Jun 28", "activos": 296, "onboarding": 24, "migrados": 119, "noMigrados": 177, "trimestre": 1, "milestone": "Weekend. 13 migrated clients activated." },
-    { "date": "2026-06-29", "label": "Jun 29", "activos": 299, "onboarding": 24, "migrados": 99,  "noMigrados": 200, "trimestre": 2, "milestone": "Activated: 20 migrated clients; 2nd Q2 tax presentation complete." },
-    { "date": "2026-06-30", "label": "Jun 30", "activos": 301, "onboarding": 24, "migrados": 89,  "noMigrados": 212, "trimestre": 4, "milestone": "Activated: 10 migrated clients; 3rd & 4th Q2 tax presentations complete." }
+    { "date": "2026-06-01", "label": "Jun 1",  "activos": 29,  "onboarding": 24, "migrados": 0,   "noMigrados": 29,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Start of the month baseline." },
+    { "date": "2026-06-02", "label": "Jun 2",  "activos": 30,  "onboarding": 24, "migrados": 0,   "noMigrados": 30,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 1 new active client." },
+    { "date": "2026-06-03", "label": "Jun 3",  "activos": 30,  "onboarding": 24, "migrados": 0,   "noMigrados": 30,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Stable." },
+    { "date": "2026-06-04", "label": "Jun 4",  "activos": 32,  "onboarding": 24, "migrados": 0,   "noMigrados": 32,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 2 new active clients." },
+    { "date": "2026-06-05", "label": "Jun 5",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 2 new active clients." },
+    { "date": "2026-06-06", "label": "Jun 6",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Weekend." },
+    { "date": "2026-06-07", "label": "Jun 7",  "activos": 34,  "onboarding": 24, "migrados": 0,   "noMigrados": 34,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Weekend." },
+    { "date": "2026-06-08", "label": "Jun 8",  "activos": 37,  "onboarding": 24, "migrados": 0,   "noMigrados": 37,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 3 new active clients." },
+    { "date": "2026-06-09", "label": "Jun 9",  "activos": 39,  "onboarding": 24, "migrados": 0,   "noMigrados": 39,  "trimestre": 0, "pctOnboarded": 0,  "milestone": "Created: 2 new active clients." },
+    { "date": "2026-06-10", "label": "Jun 10", "activos": 109, "onboarding": 24, "migrados": 69,  "noMigrados": 40,  "trimestre": 0, "pctOnboarded": 3,  "milestone": "First Migration: 70 migrated clients imported; 1 activated." },
+    { "date": "2026-06-11", "label": "Jun 11", "activos": 113, "onboarding": 24, "migrados": 61,  "noMigrados": 52,  "trimestre": 0, "pctOnboarded": 19, "milestone": "Handoff Batch: 4 migrated clients imported; 12 activated." },
+    { "date": "2026-06-12", "label": "Jun 12", "activos": 108, "onboarding": 24, "migrados": 51,  "noMigrados": 57,  "trimestre": 0, "pctOnboarded": 32, "milestone": "Activated: 10 migrated clients; 5 active clients closed." },
+    { "date": "2026-06-13", "label": "Jun 13", "activos": 108, "onboarding": 24, "migrados": 51,  "noMigrados": 57,  "trimestre": 0, "pctOnboarded": 32, "milestone": "Weekend." },
+    { "date": "2026-06-14", "label": "Jun 14", "activos": 109, "onboarding": 24, "migrados": 51,  "noMigrados": 58,  "trimestre": 0, "pctOnboarded": 32, "milestone": "Weekend. 1 client activated." },
+    { "date": "2026-06-15", "label": "Jun 15", "activos": 107, "onboarding": 24, "migrados": 48,  "noMigrados": 59,  "trimestre": 0, "pctOnboarded": 37, "milestone": "Imported: 1 migrated client; 4 clients activated; 3 closed." },
+    { "date": "2026-06-16", "label": "Jun 16", "activos": 106, "onboarding": 24, "migrados": 33,  "noMigrados": 73,  "trimestre": 0, "pctOnboarded": 57, "milestone": "Activated: 15 migrated clients; 1 closed." },
+    { "date": "2026-06-17", "label": "Jun 17", "activos": 106, "onboarding": 24, "migrados": 25,  "noMigrados": 81,  "trimestre": 0, "pctOnboarded": 68, "milestone": "Activated: 8 migrated clients." },
+    { "date": "2026-06-18", "label": "Jun 18", "activos": 106, "onboarding": 24, "migrados": 21,  "noMigrados": 85,  "trimestre": 0, "pctOnboarded": 73, "milestone": "Activated: 4 migrated clients." },
+    { "date": "2026-06-19", "label": "Jun 19", "activos": 106, "onboarding": 24, "migrados": 19,  "noMigrados": 87,  "trimestre": 0, "pctOnboarded": 76, "milestone": "Activated: 2 migrated clients." },
+    { "date": "2026-06-20", "label": "Jun 20", "activos": 106, "onboarding": 24, "migrados": 19,  "noMigrados": 87,  "trimestre": 0, "pctOnboarded": 76, "milestone": "Weekend." },
+    { "date": "2026-06-21", "label": "Jun 21", "activos": 107, "onboarding": 24, "migrados": 19,  "noMigrados": 88,  "trimestre": 0, "pctOnboarded": 76, "milestone": "Weekend. 1 client activated." },
+    { "date": "2026-06-22", "label": "Jun 22", "activos": 107, "onboarding": 24, "migrados": 18,  "noMigrados": 89,  "trimestre": 0, "pctOnboarded": 77, "milestone": "Activated: 1 migrated client." },
+    { "date": "2026-06-23", "label": "Jun 23", "activos": 107, "onboarding": 24, "migrados": 14,  "noMigrados": 93,  "trimestre": 0, "pctOnboarded": 77, "milestone": "Setup: 4 active clients activated." },
+    { "date": "2026-06-24", "label": "Jun 24", "activos": 102, "onboarding": 24, "migrados": 7,   "noMigrados": 95,  "trimestre": 0, "pctOnboarded": 91, "milestone": "Last day of the first migration cohort setup." },
+    { "date": "2026-06-25", "label": "Jun 25", "activos": 296, "onboarding": 24, "migrados": 174, "noMigrados": 122, "trimestre": 0, "pctOnboarded": 35, "milestone": "Major Migration Day: 194 migrated clients imported; 27 activated." },
+    { "date": "2026-06-26", "label": "Jun 26", "activos": 296, "onboarding": 24, "migrados": 134, "noMigrados": 162, "trimestre": 1, "pctOnboarded": 50, "milestone": "Activated: 40 migrated clients; 1st Q2 tax presentation complete." },
+    { "date": "2026-06-27", "label": "Jun 27", "activos": 296, "onboarding": 24, "migrados": 132, "noMigrados": 164, "trimestre": 1, "pctOnboarded": 51, "milestone": "Weekend. 2 migrated clients activated." },
+    { "date": "2026-06-28", "label": "Jun 28", "activos": 296, "onboarding": 24, "migrados": 119, "noMigrados": 177, "trimestre": 1, "pctOnboarded": 56, "milestone": "Weekend. 13 migrated clients activated." },
+    { "date": "2026-06-29", "label": "Jun 29", "activos": 299, "onboarding": 24, "migrados": 99,  "noMigrados": 200, "trimestre": 2, "pctOnboarded": 63, "milestone": "Activated: 20 migrated clients; 2nd Q2 tax presentation complete." },
+    { "date": "2026-06-30", "label": "Jun 30", "activos": 301, "onboarding": 24, "migrados": 89,  "noMigrados": 212, "trimestre": 4, "pctOnboarded": 67, "milestone": "Activated: 10 migrated clients; 3rd & 4th Q2 tax presentations complete. 67% of all migrated clients now onboarded (180 of 269)." }
   ]
 };
 
 const fmt = n => n.toLocaleString('en-US');
+const fmtV = (m, n) => fmt(n) + (m.unit || '');
 const cssVar = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 
 const days = DATA.days;
@@ -199,7 +174,7 @@ document.getElementById('updated').textContent = 'Updated ' + DATA.lastUpdated;
 
 // KPI cards
 const kpis = document.getElementById('kpis');
-metrics.forEach(m=>{
+metrics.filter(m=>!m.chartOnly).forEach(m=>{
   const now = last[m.key], was = first[m.key], d = now - was;
   const cls = d>0?'up':d<0?'down':'flat';
   const sign = d>0?'▲ +':d<0?'▼ ':'■ ';
@@ -226,21 +201,21 @@ function renderDetail(i){
   const d = days[i];
   detail.innerHTML =
     `<span class="dt-date">${d.label}<span class="dt-hint"> · 2026</span></span>` +
-    metrics.map(m => `<span class="dt-m"><span class="dt-dot" style="background:${cssVar('--'+m.key)}"></span>${m.label}: <b>${fmt(d[m.key])}</b></span>`).join('') +
+    metrics.map(m => `<span class="dt-m"><span class="dt-dot" style="background:${cssVar('--'+m.key)}"></span>${m.label}: <b>${fmtV(m, d[m.key])}</b></span>`).join('') +
     (d.milestone ? `<span class="dt-note">${d.milestone}</span>` : '');
 }
 function setActive(i){ updaters.forEach(u => u(i)); renderDetail(i); }
 
 metrics.forEach((m, idx) => {
   const col = cssVar('--'+m.key);
-  const full = idx === 0 ? ' full' : '';
+  const full = (idx === 0 || m.chartOnly) ? ' full' : '';
   const card = document.createElement('div');
   card.className = 'card' + full;
   const vals = days.map(d => d[m.key]);
   card.innerHTML =
     `<h3><span class="dot" style="background:${col}"></span>${m.label}</h3>` +
     (m.explain ? `<p class="explain">${m.explain}</p>` : '') +
-    `<p class="now">Now <b style="color:var(--text)">${fmt(last[m.key])}</b> &middot; 30-day low ${fmt(d3.min(vals))} &middot; high ${fmt(d3.max(vals))}</p>`;
+    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, last[m.key])}</b> &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>`;
   charts.appendChild(card);
 
   const W = full ? 1040 : 500, H = full ? 230 : 200, P = {l:40, r:18, t:16, b:24};
@@ -257,7 +232,7 @@ metrics.forEach((m, idx) => {
     .attr('x1', P.l).attr('x2', W-P.r).attr('y1', d=>y(d)).attr('y2', d=>y(d))
     .attr('stroke', 'var(--line)').attr('stroke-width', 1);
   svg.append('g').selectAll('text').data(yTicks).join('text')
-    .attr('class', 'glabel').attr('x', P.l-7).attr('y', d=>y(d)+3).attr('text-anchor', 'end').text(d=>fmt(d));
+    .attr('class', 'glabel').attr('x', P.l-7).attr('y', d=>y(d)+3).attr('text-anchor', 'end').text(d=>fmtV(m, d));
   svg.append('g').selectAll('text').data(x.ticks(full?10:6)).join('text')
     .attr('class', 'glabel').attr('x', d=>x(d)).attr('y', H-8).attr('text-anchor', 'middle').text(fmtDay);
 
@@ -275,7 +250,7 @@ metrics.forEach((m, idx) => {
     const px = x(dates[i]), py = y(vals[i]);
     fLine.attr('x1', px).attr('x2', px).style('opacity', 1);
     fDot.attr('cx', px).attr('cy', py).style('opacity', 1);
-    fVal.attr('x', px).attr('y', py-10).attr('text-anchor', px > W-60 ? 'end' : px < 60 ? 'start' : 'middle').text(fmt(vals[i])).style('opacity', 1);
+    fVal.attr('x', px).attr('y', py-10).attr('text-anchor', px > W-60 ? 'end' : px < 60 ? 'start' : 'middle').text(fmtV(m, vals[i])).style('opacity', 1);
   });
 
   svg.append('rect').attr('x', P.l).attr('y', P.t).attr('width', W-P.l-P.r).attr('height', H-P.t-P.b)
@@ -291,30 +266,6 @@ metrics.forEach((m, idx) => {
 
 setActive(days.length-1);
 charts.addEventListener('pointerleave', () => setActive(days.length-1));
-
-// Table
-const t = document.getElementById('table');
-let head = '<thead><tr><th>Date</th>' + metrics.map(m=>`<th>${m.label}</th>`).join('') + '<th>Key Platform Milestones</th></tr></thead>';
-let body = '<tbody>' + days.map((d,i)=>{
-  const today = i===days.length-1 ? ' class="today"' : '';
-  return `<tr${today}><td>${d.label}</td>` + metrics.map(m=>`<td>${fmt(d[m.key])}</td>`).join('') + `<td>${d.milestone}</td></tr>`;
-}).join('') + '</tbody>';
-t.innerHTML = head + body;
-
-// Regenerate button — opens the candobro DM and copies the request prompt.
-const CANDOBRO_DM = 'https://candosa.slack.com/archives/D0BBBH668TE';
-const REGEN_PROMPT = 'Can you give me the daily trend for each of the five Customer Summary dashboard metrics (Active customers total, Onboarding, Migrants, Non-migrants active, Quarter submitted or completed) over the past 30 days? Please include a table with one row per day.';
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),4200);
-}
-document.getElementById('regen').addEventListener('click', async ()=>{
-  try{ await navigator.clipboard.writeText(REGEN_PROMPT);
-       toast('Request copied — paste it to candobro in Slack, then send.'); }
-  catch(e){ toast('Opening candobro… paste your 7-day trend request.'); }
-  window.open(CANDOBRO_DM, '_blank', 'noopener');
-});
 
 document.getElementById('footer').innerHTML =
   `Generated from candobro's daily reconstruction of the production database and event logs. ` +

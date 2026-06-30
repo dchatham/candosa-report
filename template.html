@@ -17,7 +17,7 @@
     --font:"Roboto",-apple-system,"Segoe UI",Arial,sans-serif;
     --font-display:"Playfair Display",Georgia,serif;
     --activos:#11212d; --onboarding:#C08B5E; --migrados:#E07A5F;
-    --noMigrados:#6A8E7F; --trimestre:#F03906;
+    --noMigrados:#6A8E7F; --trimestre:#F03906; --pctOnboarded:#7C52FF;
   }
   *{box-sizing:border-box}
   html,body{margin:0;background:var(--bg);color:var(--text);
@@ -31,15 +31,6 @@
   .sub{color:var(--muted);font-size:14px;margin-top:6px}
   .range{color:var(--faint);font-size:13px;text-align:right}
   .range b{color:var(--text)}
-  #regen{margin-top:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;
-    padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:filter .15s}
-  #regen:hover{filter:brightness(1.12)}
-  #regen:active{transform:translateY(1px)}
-  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
-    background:var(--text);border:1px solid var(--text);color:#fff;padding:11px 18px;
-    border-radius:10px;font-size:13.5px;box-shadow:0 8px 30px rgba(17,33,45,.25);opacity:0;
-    pointer-events:none;transition:opacity .2s,transform .2s;max-width:90vw;text-align:center}
-  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
     margin:42px 0 16px;font-weight:600}
 
@@ -78,19 +69,6 @@
     vertical-align:middle;margin-right:5px}
   .detail .dt-note{flex-basis:100%;color:var(--faint);margin-top:2px;line-height:1.4}
 
-  /* table */
-  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--panel);
-    border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
-  th:first-child,td:first-child{text-align:left}
-  th:last-child,td:last-child{text-align:left;white-space:normal;color:var(--muted);min-width:240px}
-  thead th{background:var(--panel2);color:var(--muted);font-weight:600;font-size:12px;
-    text-transform:uppercase;letter-spacing:.04em}
-  tbody tr:last-child td{border-bottom:none}
-  tbody tr.today{background:rgba(240,57,6,.06)}
-  tbody tr.today td:first-child{font-weight:700}
-  .tablewrap{overflow-x:auto}
-
   ul.insights{list-style:none;padding:0;margin:0;display:grid;gap:12px}
   ul.insights li{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
     border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.5}
@@ -115,19 +93,14 @@
       <div><b id="range">—</b></div>
       <div>Source: candobro · prod DB &amp; event logs</div>
       <div id="updated">—</div>
-      <button id="regen" title="Opens the candobro Slack DM and copies the request to your clipboard">↻ Regenerate via candobro</button>
     </div>
   </header>
-  <div id="toast"></div>
 
   <div class="kpis" id="kpis"></div>
 
   <h2>30-Day Trend by Metric</h2>
   <div class="detail" id="detail"></div>
   <div class="charts" id="charts"></div>
-
-  <h2>Daily Detail &amp; Milestones</h2>
-  <div class="tablewrap"><table id="table"></table></div>
 
   <h2>Key Insights</h2>
   <ul class="insights">
@@ -145,6 +118,7 @@
 const DATA = /*__DATA__*/{};
 
 const fmt = n => n.toLocaleString('en-US');
+const fmtV = (m, n) => fmt(n) + (m.unit || '');
 const cssVar = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 
 const days = DATA.days;
@@ -156,7 +130,7 @@ document.getElementById('updated').textContent = 'Updated ' + DATA.lastUpdated;
 
 // KPI cards
 const kpis = document.getElementById('kpis');
-metrics.forEach(m=>{
+metrics.filter(m=>!m.chartOnly).forEach(m=>{
   const now = last[m.key], was = first[m.key], d = now - was;
   const cls = d>0?'up':d<0?'down':'flat';
   const sign = d>0?'▲ +':d<0?'▼ ':'■ ';
@@ -183,21 +157,21 @@ function renderDetail(i){
   const d = days[i];
   detail.innerHTML =
     `<span class="dt-date">${d.label}<span class="dt-hint"> · 2026</span></span>` +
-    metrics.map(m => `<span class="dt-m"><span class="dt-dot" style="background:${cssVar('--'+m.key)}"></span>${m.label}: <b>${fmt(d[m.key])}</b></span>`).join('') +
+    metrics.map(m => `<span class="dt-m"><span class="dt-dot" style="background:${cssVar('--'+m.key)}"></span>${m.label}: <b>${fmtV(m, d[m.key])}</b></span>`).join('') +
     (d.milestone ? `<span class="dt-note">${d.milestone}</span>` : '');
 }
 function setActive(i){ updaters.forEach(u => u(i)); renderDetail(i); }
 
 metrics.forEach((m, idx) => {
   const col = cssVar('--'+m.key);
-  const full = idx === 0 ? ' full' : '';
+  const full = (idx === 0 || m.chartOnly) ? ' full' : '';
   const card = document.createElement('div');
   card.className = 'card' + full;
   const vals = days.map(d => d[m.key]);
   card.innerHTML =
     `<h3><span class="dot" style="background:${col}"></span>${m.label}</h3>` +
     (m.explain ? `<p class="explain">${m.explain}</p>` : '') +
-    `<p class="now">Now <b style="color:var(--text)">${fmt(last[m.key])}</b> &middot; 30-day low ${fmt(d3.min(vals))} &middot; high ${fmt(d3.max(vals))}</p>`;
+    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, last[m.key])}</b> &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>`;
   charts.appendChild(card);
 
   const W = full ? 1040 : 500, H = full ? 230 : 200, P = {l:40, r:18, t:16, b:24};
@@ -214,7 +188,7 @@ metrics.forEach((m, idx) => {
     .attr('x1', P.l).attr('x2', W-P.r).attr('y1', d=>y(d)).attr('y2', d=>y(d))
     .attr('stroke', 'var(--line)').attr('stroke-width', 1);
   svg.append('g').selectAll('text').data(yTicks).join('text')
-    .attr('class', 'glabel').attr('x', P.l-7).attr('y', d=>y(d)+3).attr('text-anchor', 'end').text(d=>fmt(d));
+    .attr('class', 'glabel').attr('x', P.l-7).attr('y', d=>y(d)+3).attr('text-anchor', 'end').text(d=>fmtV(m, d));
   svg.append('g').selectAll('text').data(x.ticks(full?10:6)).join('text')
     .attr('class', 'glabel').attr('x', d=>x(d)).attr('y', H-8).attr('text-anchor', 'middle').text(fmtDay);
 
@@ -232,7 +206,7 @@ metrics.forEach((m, idx) => {
     const px = x(dates[i]), py = y(vals[i]);
     fLine.attr('x1', px).attr('x2', px).style('opacity', 1);
     fDot.attr('cx', px).attr('cy', py).style('opacity', 1);
-    fVal.attr('x', px).attr('y', py-10).attr('text-anchor', px > W-60 ? 'end' : px < 60 ? 'start' : 'middle').text(fmt(vals[i])).style('opacity', 1);
+    fVal.attr('x', px).attr('y', py-10).attr('text-anchor', px > W-60 ? 'end' : px < 60 ? 'start' : 'middle').text(fmtV(m, vals[i])).style('opacity', 1);
   });
 
   svg.append('rect').attr('x', P.l).attr('y', P.t).attr('width', W-P.l-P.r).attr('height', H-P.t-P.b)
@@ -248,30 +222,6 @@ metrics.forEach((m, idx) => {
 
 setActive(days.length-1);
 charts.addEventListener('pointerleave', () => setActive(days.length-1));
-
-// Table
-const t = document.getElementById('table');
-let head = '<thead><tr><th>Date</th>' + metrics.map(m=>`<th>${m.label}</th>`).join('') + '<th>Key Platform Milestones</th></tr></thead>';
-let body = '<tbody>' + days.map((d,i)=>{
-  const today = i===days.length-1 ? ' class="today"' : '';
-  return `<tr${today}><td>${d.label}</td>` + metrics.map(m=>`<td>${fmt(d[m.key])}</td>`).join('') + `<td>${d.milestone}</td></tr>`;
-}).join('') + '</tbody>';
-t.innerHTML = head + body;
-
-// Regenerate button — opens the candobro DM and copies the request prompt.
-const CANDOBRO_DM = 'https://candosa.slack.com/archives/D0BBBH668TE';
-const REGEN_PROMPT = 'Can you give me the daily trend for each of the five Customer Summary dashboard metrics (Active customers total, Onboarding, Migrants, Non-migrants active, Quarter submitted or completed) over the past 30 days? Please include a table with one row per day.';
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),4200);
-}
-document.getElementById('regen').addEventListener('click', async ()=>{
-  try{ await navigator.clipboard.writeText(REGEN_PROMPT);
-       toast('Request copied — paste it to candobro in Slack, then send.'); }
-  catch(e){ toast('Opening candobro… paste your 7-day trend request.'); }
-  window.open(CANDOBRO_DM, '_blank', 'noopener');
-});
 
 document.getElementById('footer').innerHTML =
   `Generated from candobro's daily reconstruction of the production database and event logs. ` +
