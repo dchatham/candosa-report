@@ -63,7 +63,19 @@
   svg{display:block;width:100%;height:auto;overflow:visible}
   .axis{stroke:var(--line);stroke-width:1}
   .glabel{fill:var(--faint);font-size:11px}
-  .pt-val{fill:var(--text);font-size:11px;font-weight:600}
+  .pt-val{fill:var(--text);font-size:12px;font-weight:600}
+  .focusline{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3;pointer-events:none}
+  .detail{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:12px 16px;margin-bottom:18px;font-size:13px;display:flex;flex-wrap:wrap;
+    gap:6px 20px;align-items:center;min-height:24px}
+  .detail .dt-date{font-family:var(--font-display);font-weight:600;font-size:16px;
+    color:var(--text);margin-right:4px}
+  .detail .dt-hint{color:var(--faint);font-weight:400;font-family:var(--font);font-size:12px}
+  .detail .dt-m{color:var(--muted);white-space:nowrap}
+  .detail .dt-m b{color:var(--text)}
+  .detail .dt-dot{display:inline-block;width:8px;height:8px;border-radius:50%;
+    vertical-align:middle;margin-right:5px}
+  .detail .dt-note{flex-basis:100%;color:var(--faint);margin-top:2px;line-height:1.4}
 
   /* table */
   table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--panel);
@@ -110,6 +122,7 @@
   <div class="kpis" id="kpis"></div>
 
   <h2>30-Day Trend by Metric</h2>
+  <div class="detail" id="detail"></div>
   <div class="charts" id="charts"></div>
 
   <h2>Daily Detail &amp; Milestones</h2>
@@ -126,6 +139,7 @@
   <footer id="footer"></footer>
 </div>
 
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 const DATA = /*__DATA__*/{};
 
@@ -156,52 +170,82 @@ metrics.forEach(m=>{
     </div>`);
 });
 
-// Line chart generator (inline SVG)
-function chart(metric){
-  const W=480,H=190, P={l:34,r:18,t:18,b:26};
-  const vals = days.map(d=>d[metric.key]);
-  const max = Math.max(...vals), min = Math.min(...vals);
-  const pad = (max-min)*0.15 || 1;
-  const lo = Math.max(0, min-pad), hi = max+pad;
-  const x = i => P.l + i*(W-P.l-P.r)/(days.length-1);
-  const y = v => P.t + (hi-v)/(hi-lo)*(H-P.t-P.b);
-  const col = cssVar('--'+metric.key);
-
-  const linePts = vals.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
-  const area = `${P.l},${H-P.b} ` + linePts + ` ${x(days.length-1)},${H-P.b}`;
-
-  let g='';
-  // baseline axis
-  g += `<line class="axis" x1="${P.l}" y1="${H-P.b}" x2="${W-P.r}" y2="${H-P.b}"/>`;
-  // area + line
-  g += `<polygon points="${area}" fill="${col}" opacity="0.10"/>`;
-  g += `<polyline points="${linePts}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-  // x-axis labels: show ~7 evenly spaced so 30-day charts don't crowd
-  const step = Math.max(1, Math.ceil((days.length-1)/6));
-  // endpoints get a marker + value; x-labels are sparse
-  vals.forEach((v,i)=>{
-    const isEnd = i===0 || i===vals.length-1;
-    if(isEnd){
-      g += `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${col}" stroke="var(--panel)" stroke-width="1.5"/>`;
-      g += `<text class="pt-val" x="${x(i)}" y="${y(v)-9}" text-anchor="${i===0?'start':'end'}">${fmt(v)}</text>`;
-    }
-    if(i===0 || i===vals.length-1 || i%step===0)
-      g += `<text class="glabel" x="${x(i)}" y="${H-8}" text-anchor="middle">${days[i].label}</text>`;
-  });
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${metric.label} trend">${g}</svg>`;
-}
-
+// D3 line charts with a synchronized hover crosshair across all five metrics.
 const charts = document.getElementById('charts');
-metrics.forEach((m,idx)=>{
+const detail = document.getElementById('detail');
+const parseDate = d3.timeParse('%Y-%m-%d');
+const dates = days.map(d => parseDate(d.date));
+const fmtDay = d3.timeFormat('%b %-d');
+const updaters = [];
+
+function renderDetail(i){
+  const d = days[i];
+  detail.innerHTML =
+    `<span class="dt-date">${d.label}<span class="dt-hint"> · 2026</span></span>` +
+    metrics.map(m => `<span class="dt-m"><span class="dt-dot" style="background:${cssVar('--'+m.key)}"></span>${m.label}: <b>${fmt(d[m.key])}</b></span>`).join('') +
+    (d.milestone ? `<span class="dt-note">${d.milestone}</span>` : '');
+}
+function setActive(i){ updaters.forEach(u => u(i)); renderDetail(i); }
+
+metrics.forEach((m, idx) => {
   const col = cssVar('--'+m.key);
-  const full = idx===0 ? ' full' : '';
-  charts.insertAdjacentHTML('beforeend', `
-    <div class="card${full}">
-      <h3><span class="dot" style="background:${col}"></span>${m.label}</h3>
-      <p class="now">Now <b style="color:var(--text)">${fmt(last[m.key])}</b> &middot; 30-day low ${fmt(Math.min(...days.map(d=>d[m.key])))} &middot; high ${fmt(Math.max(...days.map(d=>d[m.key])))}</p>
-      ${chart(m)}
-    </div>`);
+  const full = idx === 0 ? ' full' : '';
+  const card = document.createElement('div');
+  card.className = 'card' + full;
+  const vals = days.map(d => d[m.key]);
+  card.innerHTML =
+    `<h3><span class="dot" style="background:${col}"></span>${m.label}</h3>` +
+    `<p class="now">Now <b style="color:var(--text)">${fmt(last[m.key])}</b> &middot; 30-day low ${fmt(d3.min(vals))} &middot; high ${fmt(d3.max(vals))}</p>`;
+  charts.appendChild(card);
+
+  const W = full ? 1040 : 500, H = full ? 230 : 200, P = {l:40, r:18, t:16, b:24};
+  const svg = d3.select(card).append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%')
+    .attr('role', 'img').attr('aria-label', `${m.label} 30-day trend`);
+
+  const x = d3.scaleTime().domain(d3.extent(dates)).range([P.l, W-P.r]);
+  const ymin = d3.min(vals), ymax = d3.max(vals), pad = (ymax-ymin)*0.15 || 1;
+  const y = d3.scaleLinear().domain([Math.max(0, ymin-pad), ymax+pad]).range([H-P.b, P.t]);
+
+  const yTicks = y.ticks(4);
+  svg.append('g').selectAll('line').data(yTicks).join('line')
+    .attr('x1', P.l).attr('x2', W-P.r).attr('y1', d=>y(d)).attr('y2', d=>y(d))
+    .attr('stroke', 'var(--line)').attr('stroke-width', 1);
+  svg.append('g').selectAll('text').data(yTicks).join('text')
+    .attr('class', 'glabel').attr('x', P.l-7).attr('y', d=>y(d)+3).attr('text-anchor', 'end').text(d=>fmt(d));
+  svg.append('g').selectAll('text').data(x.ticks(full?10:6)).join('text')
+    .attr('class', 'glabel').attr('x', d=>x(d)).attr('y', H-8).attr('text-anchor', 'middle').text(fmtDay);
+
+  const area = d3.area().x((d,i)=>x(dates[i])).y0(y.range()[0]).y1(d=>y(d)).curve(d3.curveMonotoneX);
+  const line = d3.line().x((d,i)=>x(dates[i])).y(d=>y(d)).curve(d3.curveMonotoneX);
+  svg.append('path').datum(vals).attr('d', area).attr('fill', col).attr('opacity', 0.10);
+  svg.append('path').datum(vals).attr('d', line).attr('fill', 'none').attr('stroke', col)
+    .attr('stroke-width', 2.5).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
+
+  const fLine = svg.append('line').attr('class', 'focusline').attr('y1', P.t).attr('y2', H-P.b).style('opacity', 0);
+  const fDot = svg.append('circle').attr('r', 4.5).attr('fill', col).attr('stroke', 'var(--panel)').attr('stroke-width', 2).style('opacity', 0);
+  const fVal = svg.append('text').attr('class', 'pt-val').style('opacity', 0);
+
+  updaters.push(i => {
+    const px = x(dates[i]), py = y(vals[i]);
+    fLine.attr('x1', px).attr('x2', px).style('opacity', 1);
+    fDot.attr('cx', px).attr('cy', py).style('opacity', 1);
+    fVal.attr('x', px).attr('y', py-10).attr('text-anchor', px > W-60 ? 'end' : px < 60 ? 'start' : 'middle').text(fmt(vals[i])).style('opacity', 1);
+  });
+
+  svg.append('rect').attr('x', P.l).attr('y', P.t).attr('width', W-P.l-P.r).attr('height', H-P.t-P.b)
+    .attr('fill', 'transparent').style('cursor', 'crosshair')
+    .on('pointermove', ev => {
+      const t = x.invert(d3.pointer(ev)[0]);
+      let i = d3.bisectLeft(dates, t);
+      if (i <= 0) i = 0; else if (i >= dates.length) i = dates.length-1;
+      else if (t - dates[i-1] < dates[i] - t) i = i-1;
+      setActive(i);
+    });
 });
+
+setActive(days.length-1);
+charts.addEventListener('pointerleave', () => setActive(days.length-1));
 
 // Table
 const t = document.getElementById('table');
