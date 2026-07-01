@@ -112,8 +112,8 @@
 
   <h2>Key Insights</h2>
   <ul class="insights">
-    <li><b>Two migration waves in June.</b> The <b>Jun 10</b> import added ~74 migrants (fully activated within two weeks), then the <b>Jun 25</b> "major migration" added <b>194</b> in one batch — driving active customers from 29 at the start of the month to <b>301</b>.</li>
-    <li><b>Steady activation.</b> Migrants are continuously converted into <em>Non-migrants (active)</em>; from the Jun 25 wave, <b>105</b> were activated in just 5 days (migrants 174 → 89).</li>
+    <li><b>Two migration waves in June.</b> The <b>Jun 10</b> import added ~74 migrated (fully activated within two weeks), then the <b>Jun 25</b> "major migration" added <b>194</b> in one batch — driving active customers from 29 at the start of the month to <b>301</b>.</li>
+    <li><b>Steady activation.</b> Migrated are continuously converted into <em>Non-migrated (active)</em>; from the Jun 25 wave, <b>105</b> were activated in just 5 days (migrated 174 → 89).</li>
     <li><b>Onboarding held flat.</b> The onboarding queue stayed at <b>24</b> all month — registrations complete at the rate new ones arrive.</li>
     <li><b>Q2 tax season closed strong.</b> Filing kicked off Jun 26 and wrapped today with <b>4 presentations</b> submitted/completed.</li>
   </ul>
@@ -128,12 +128,12 @@ const DATA = {
   "source": "candobro (Slack) — reconstructed from production database and event logs",
   "lastUpdated": "2026-06-30",
   "metrics": [
-    {"key":"activos","label":"Active customers (total)","sub":"Migrants + non-migrants","color":"#11212d","overlay":"noMigrados","overlayLabel":"Activated (non-migrants)","explain":"Total active customers (migrants plus non-migrants) versus those already activated — the gap between the lines is migrants still pending activation."},
+    {"key":"activos","label":"Active customers (total)","sub":"Migrated + non-migrated","color":"#11212d","overlay":"noMigrados","overlayLabel":"Activated (non-migrated)","explain":"Total active customers (migrated plus non-migrated) versus those already activated — the gap between the lines is migrated still pending activation."},
     {"key":"onboarding","label":"Onboarding","sub":"Assets without assigned activity","color":"#C08B5E","share":true,"explain":"Clients still in onboarding (no activity assigned yet) — held flat at 24 all month as completions kept pace with new signups."},
-    {"key":"migrados","label":"Migrants","sub":"","color":"#E07A5F","share":true,"explain":"Imported migrant clients not yet activated — spikes on each import (Jun 10 and Jun 25), then drains as the team activates them."},
-    {"key":"noMigrados","label":"Non-migrants (active)","sub":"","color":"#6A8E7F","share":true,"explain":"Fully set-up, active customers — rises steadily as migrants are converted into active accounts."},
+    {"key":"migrados","label":"Migrated","sub":"","color":"#E07A5F","share":true,"explain":"Imported migrated clients not yet activated — spikes on each import (Jun 10 and Jun 25), then drains as the team activates them."},
+    {"key":"noMigrados","label":"Non-migrated (active)","sub":"","color":"#6A8E7F","share":true,"explain":"Fully set-up, active customers — rises steadily as migrated are converted into active accounts."},
     {"key":"trimestre","label":"Quarter submitted or completed","sub":"Current quarter","color":"#F03906","share":true,"explain":"Clients whose current-quarter tax filing is submitted or completed — began Jun 26 and reached 4 by month-end."},
-    {"key":"pctOnboarded","label":"Migrant activation rate","sub":"Onboarded ÷ total migrated imported","color":"#7C52FF","unit":"%","chartOnly":true,"numKey":"migAct","denKey":"migImp","explain":"Share of all imported migrant clients that have been onboarded/activated — dipped on Jun 25 when the second wave enlarged the denominator, recovering to 67% (180 of 269) by month-end."},
+    {"key":"pctOnboarded","label":"Migrated activation rate","sub":"Onboarded ÷ total migrated imported","color":"#7C52FF","unit":"%","chartOnly":true,"numKey":"migAct","denKey":"migImp","explain":"Share of all imported migrated clients that have been onboarded/activated — dipped on Jun 25 when the second wave enlarged the denominator, recovering to 67% (180 of 269) by month-end."},
     {"key":"uploads","label":"Clients uploading documents","sub":"Distinct clients with 1+ upload per day","color":"#2F80B8","chartOnly":true,"explain":"Distinct clients who uploaded at least one document each day — a daily activity/engagement signal. Peaks on the migration days (Jun 10 and Jun 25) as imported clients submit their paperwork."}
   ],
   "days": [
@@ -169,7 +169,7 @@ const DATA = {
     {"date":"2026-06-30","label":"Jun 30","activos":301,"onboarding":24,"migrados":89,"noMigrados":212,"trimestre":4,"pctOnboarded":67,"migAct":180,"migImp":269,"milestone":"Activated: 10 migrated clients; 3rd & 4th Q2 tax presentations complete. 67% of all migrated clients now onboarded (180 of 269).","uploads":72}
   ]
 };
-const BUILT = "Jul 1, 2026, 9:39 AM CDT";
+const BUILT = "Jul 1, 2026, 12:06 PM CDT";
 
 const fmt = n => n.toLocaleString('en-US');
 const fmtV = (m, n) => fmt(n) + (m.unit || '');
@@ -296,7 +296,7 @@ charts.addEventListener('pointerleave', () => setActive(days.length-1));
 
 document.getElementById('footer').innerHTML =
   `Generated from candobro's daily reconstruction of the production database and event logs. ` +
-  `Metrics: Active customers (total), Onboarding, Migrants, Non-migrants (active), Quarter submitted or completed. ` +
+  `Metrics: Active customers (total), Onboarding, Migrated, Non-migrated (active), Quarter submitted or completed. ` +
   `&copy; Candosa · ${DATA.lastUpdated}`;
 </script>
 </body>
