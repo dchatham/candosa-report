@@ -52,6 +52,9 @@
   .charts{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 8px}
   .card.full{grid-column:1 / -1}
+  .section-head{grid-column:1 / -1;font-size:13px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--accent);font-weight:600;margin:14px 0 -2px;padding-top:6px}
+  .section-head:first-child{margin-top:0}
   .card h3{margin:0 0 2px;font-size:15px;display:flex;align-items:center;gap:8px}
   .dot{width:10px;height:10px;border-radius:50%}
   .card .explain{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 8px}
@@ -168,22 +171,31 @@ function renderDetail(i){
   const d = days[i];
   detail.innerHTML =
     `<span class="dt-date">${d.label}<span class="dt-hint"> · 2026</span></span>` +
-    metrics.map(m => `<span class="dt-m"><span class="dt-dot" style="background:${cssVar('--'+m.key)}"></span>${m.label}: <b>${fmtV(m, d[m.key])}</b>${hard(m, d)}</span>`).join('') +
+    metrics.map(m => `<span class="dt-m"><span class="dt-dot" style="background:${cssVar('--'+m.key)}"></span>${m.label}: <b>${d[m.key]!=null ? fmtV(m, d[m.key])+hard(m, d) : '—'}</b></span>`).join('') +
     (d.milestone ? `<span class="dt-note">${d.milestone}</span>` : '');
 }
 function setActive(i){ updaters.forEach(u => u(i)); renderDetail(i); }
 
+let currentSection = null;
 metrics.forEach((m, idx) => {
   const col = cssVar('--'+m.key);
+  if (m.section && m.section !== currentSection) {
+    currentSection = m.section;
+    const sh = document.createElement('div');
+    sh.className = 'section-head';
+    sh.textContent = m.section;
+    charts.appendChild(sh);
+  }
   const full = (idx === 0 || m.full) ? ' full' : '';
   const card = document.createElement('div');
   card.className = 'card' + full;
   const vals = days.map(d => d[m.key]);
+  const lastRow = [...days].reverse().find(d => d[m.key] != null) || last;
   const oKey = m.overlay, oVals = oKey ? days.map(d => d[oKey]) : null, oCol = oKey ? cssVar('--'+oKey) : null;
   card.innerHTML =
     `<h3><span class="dot" style="background:${col}"></span>${m.label}</h3>` +
     (m.explain ? `<p class="explain">${m.explain}</p>` : '') +
-    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, last[m.key])}</b>${hard(m, last)}${m.share ? ` of ${fmt(totalBase)} customers` : ''}${oKey ? ` &middot; activated <b style="color:var(--text)">${fmt(last[oKey])}</b>` : ''} &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>` +
+    `<p class="now">Now <b style="color:var(--text)">${fmtV(m, lastRow[m.key])}</b>${hard(m, lastRow)}${m.share ? ` of ${fmt(totalBase)} customers` : ''}${oKey ? ` &middot; activated <b style="color:var(--text)">${fmt(lastRow[oKey])}</b>` : ''} &middot; 30-day low ${fmtV(m, d3.min(vals))} &middot; high ${fmtV(m, d3.max(vals))}</p>` +
     (oKey ? `<p class="legend"><span class="lg"><span class="lgline" style="border-top-color:${col}"></span>${m.label}</span><span class="lg"><span class="lgline dash" style="border-top-color:${oCol}"></span>${m.overlayLabel}</span></p>` : '');
   charts.appendChild(card);
 
@@ -206,8 +218,8 @@ metrics.forEach((m, idx) => {
   svg.append('g').selectAll('text').data(x.ticks(full?10:6)).join('text')
     .attr('class', 'glabel').attr('x', d=>x(d)).attr('y', H-8).attr('text-anchor', 'middle').text(fmtDay);
 
-  const area = d3.area().x((d,i)=>x(dates[i])).y0(y.range()[0]).y1(d=>y(d)).curve(d3.curveMonotoneX);
-  const line = d3.line().x((d,i)=>x(dates[i])).y(d=>y(d)).curve(d3.curveMonotoneX);
+  const area = d3.area().defined(d=>d!=null).x((d,i)=>x(dates[i])).y0(y.range()[0]).y1(d=>y(d)).curve(d3.curveMonotoneX);
+  const line = d3.line().defined(d=>d!=null).x((d,i)=>x(dates[i])).y(d=>y(d)).curve(d3.curveMonotoneX);
   svg.append('path').datum(vals).attr('d', area).attr('fill', col).attr('opacity', 0.10);
   svg.append('path').datum(vals).attr('d', line).attr('fill', 'none').attr('stroke', col)
     .attr('stroke-width', 2.5).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
@@ -223,15 +235,16 @@ metrics.forEach((m, idx) => {
   const oVal = oVals ? svg.append('text').attr('class', 'pt-val').style('fill', oCol).style('opacity', 0) : null;
 
   updaters.push(i => {
-    const px = x(dates[i]), py = y(vals[i]);
+    const px = x(dates[i]);
     const anchor = px > W-60 ? 'end' : px < 60 ? 'start' : 'middle';
     fLine.attr('x1', px).attr('x2', px).style('opacity', 1);
-    fDot.attr('cx', px).attr('cy', py).style('opacity', 1);
-    fVal.attr('x', px).attr('y', py-10).attr('text-anchor', anchor).text(fmtV(m, vals[i])).style('opacity', 1);
+    const has = vals[i] != null;
+    fDot.attr('cx', px).attr('cy', has ? y(vals[i]) : 0).style('opacity', has ? 1 : 0);
+    fVal.attr('x', px).attr('y', has ? y(vals[i])-10 : 0).attr('text-anchor', anchor).text(has ? fmtV(m, vals[i]) : '').style('opacity', has ? 1 : 0);
     if (oVals) {
-      const oy = y(oVals[i]);
-      oDot.attr('cx', px).attr('cy', oy).style('opacity', 1);
-      oVal.attr('x', px).attr('y', oy+17).attr('text-anchor', anchor).text(fmt(oVals[i])).style('opacity', 1);
+      const oh = oVals[i] != null;
+      oDot.attr('cx', px).attr('cy', oh ? y(oVals[i]) : 0).style('opacity', oh ? 1 : 0);
+      oVal.attr('x', px).attr('y', oh ? y(oVals[i])+17 : 0).attr('text-anchor', anchor).text(oh ? fmt(oVals[i]) : '').style('opacity', oh ? 1 : 0);
     }
   });
 
